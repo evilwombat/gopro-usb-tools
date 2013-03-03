@@ -77,7 +77,8 @@ repo, but there is a tool to extract the binaries (and perform the HAL fix-ups)
 from the v222 HD2-firmware.bin file. Regardless of which RTOS version or Linux
 kernel we are trying to load, the BLD/HAL must come from the v222 version of
 the HD2-firmware.bin file, since the offsets and modifications that we make are
-specific to this version. 
+specific to this version. See "Preparing the necessary bootstrap files" below
+for how to do this.
 
 
 Compiling and Dependencies
@@ -110,7 +111,9 @@ execute the following command:
  $ ./prepare-bootstrap HD2-firmware.bin
 
 This will produce the v222-bld.bin and v222-hal-reloc.bin files. Now gpboot 
-will have the files it needs to bootstrap the camera.
+will have the files it needs to bootstrap the camera. Again, this
+prepare-bootstrap commands MUST be run on the v222 firmware update file,
+regardless of what you are actually trying to load and boot in the end.
 
 
 To actually boot the camera, you can use the 'gpboot' command.
@@ -135,7 +138,7 @@ prior to running this command.
 
 Loading the RTOS
 ================
- $ ./gpboot --rtos <rtos_file>
+ $ ./gpboot --rtos rtos_file
 
 This is probably the most "useful" debrick method, but it is also risky.
 This will load the bootloader, modified HAL, and the specified RTOS file to the
@@ -180,7 +183,7 @@ that it will be execute RTOS commands from autoexec.ash on the sdcard, which
 could possibly be used to restore the camera to a working state. Keep in mind
 that sometimes something goes wonky with the A:\ drive on the RTOS, so it may
 be necessary to change directory from A:\ to D:\ in autoexec.ash before doing
-any interesting commands (cd d:\).
+any interesting commands ( cd d:\ ).
 
 I do not have an exact autoexec.ash sequence that will reflash the camera to
 a working state that works 100% of the time, but perhaps the autoexec.ash on
@@ -208,7 +211,11 @@ and hopefully get a little Linux shell. This may allow you to examine the state
 of the flash (also, cat /proc/mtd) and be able to do linux commands
 interactively. It is my hope that this can be a useful method to restore the
 flash on a camera that is otherwise totally wiped, but at the moment there is
-no known way to reflash the camera from within Linux that has worked.
+no known way to reflash the camera from within Linux that has worked. But, I
+haven't really tried this all that much. I did include 'nanddump' and
+'nandwrite' into the busybox build, and they might come in handy (just be
+CAREFUL!). How the state of the flash relates to the CRCs in the partition
+table (PTB, also mtd1) is still not quite clear to me, either.
 There should also be kernel messages and a shell on the camera's serial port,
 at 115200 baud.
 
