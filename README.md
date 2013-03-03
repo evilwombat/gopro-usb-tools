@@ -85,11 +85,18 @@ Compiling and Dependencies
 The gpboot program requires libusb-1.0.0 to interact with the camera, so you
 will need to install the libusb-1.0.0 development files before compiling. On
 an Ubuntu system, you can do this with the following command:
-$ sudo apt-get install libusb-1.0.0-dev
+ $ sudo apt-get install libusb-1.0.0-dev
 
 Once that is installed, you can build gpboot and prepare-bootstrap with a
 simple make command:
-$ make
+ $ make
+
+
+A warning about permissions
+---------------------------
+On some systems, you may need to add some kind of a udev rule to make the
+camera accessible by non-root users. Or, you could run gpboot with the
+'sudo' command.
 
 
 Preparing the necessary bootstrap files
@@ -97,7 +104,7 @@ Preparing the necessary bootstrap files
 
 To prepare the BLD and modified HAL, get the v222 HD2-firmware.bin file and
 execute the following command:
-$ ./prepare-bootstrap HD2-firmware.bin
+ $ ./prepare-bootstrap HD2-firmware.bin
 
 This will produce the v222-bld.bin and v222-hal-reloc.bin files. Now gpboot 
 will have the files it needs to bootstrap the camera.
@@ -113,7 +120,7 @@ The gpboot tool supports three loading modes. They are:
 
 Loading the Bootloader (BLD) only
 =================================
-$ ./gpboot --bootloader
+ $ ./gpboot --bootloader
 
 This will load the BLD (and the pre-modified HAL) and jump into the bootloader.
 If everything else in the camera is okay, the camera should boot normally from
@@ -125,7 +132,7 @@ prior to running this command.
 
 Loading the RTOS
 ================
-$ ./gpboot --rtos <rtos_file>
+ $ ./gpboot --rtos <rtos_file>
 
 This is probably the most "useful" debrick method, but it is also risky.
 This will load the bootloader, modified HAL, and the specified RTOS file to the
@@ -187,7 +194,7 @@ process (which again, won't work in this mode and you may have to do the
 Loading Linux
 =============
 
-$ ./gpboot --linux
+ $ ./gpboot --linux
 
 This is probably the most advanced booting method, and the least useful. This
 command will load a pre-build Linux kernel (zImage) and a pre-built initrd
@@ -221,4 +228,4 @@ Well, that's that - have fun, be careful, and again, do everything at your own
 risk, and don't blame me for anything that goes wrong. But I hope someone can
 find this stuff useful, and can make a reliable hard-debrick method.
 
-- evilwombat
+-- evilwombat
