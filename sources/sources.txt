@@ -1,0 +1,12 @@
+Kernel source: http://wpcdn.gopro.com.s3.amazonaws.com/wp-content/uploads/2013/01/kernel.tar.gz
+It is the Linux kernel (a modified 2.6.38.8) that GoPro released on their website.
+
+Apply the included kernel patches and use the included kernel config file.
+I used the toolchain that GoPro posted for building the kernel, but I am sure others will work.
+
+The busybox here is an unmodified busybox 1.21.0, available from http://busybox.net/downloads/busybox-1.21.0.tar.bz2
+My busybox config file is also included here.
+
+See also: http://gopro.com/support/open-source
+
+Note: this entire set of tools is not affiliated with GoPro in any way at all.

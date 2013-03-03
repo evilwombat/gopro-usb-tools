@@ -1,0 +1,245 @@
+From 2b578c24c117d1b577824271f7afa353f2a2703e Mon Sep 17 00:00:00 2001
+From: evilwombat <evilwombat@server.fake>
+Date: Mon, 25 Feb 2013 22:07:55 -0800
+Subject: [PATCH 1/3] Stuff needed to ACTUALLY compile this kernel
+
+The fixes are all very dirty but it was very very late and
+I have to sleep too.
+
+Signed-off-by: evilwombat <evilwombat@server.fake>
+---
+ arch/arm/Makefile                 |    4 ++--
+ arch/arm/plat-ambarella/boss/pm.c |   27 +++++++++++++-------------
+ arch/arm/tools/Makefile           |   38 -------------------------------------
+ arch/arm/tools/Makefile_br        |    4 ++--
+ drivers/Kconfig                   |    4 ----
+ drivers/Makefile                  |    4 ++--
+ drivers/ambarella-ipc/Makefile    |    8 ++++----
+ 7 files changed, 24 insertions(+), 65 deletions(-)
+
+diff --git a/arch/arm/Makefile b/arch/arm/Makefile
+index 48f0974..203a951 100644
+--- a/arch/arm/Makefile
++++ b/arch/arm/Makefile
+@@ -267,7 +267,7 @@ drivers-$(CONFIG_PM)		+= arch/arm/power/
+ libs-y				:= arch/arm/lib/ $(libs-y)
+ ifndef CONFIG_AMBARELLA_IPC2
+ ifndef CONFIG_AMBARELLA_IPC_HAS_SRC
+-libs-y				+= drivers/ambarella-ipc/
++#libs-y				+= drivers/ambarella-ipc/
+ endif
+ endif
+ 
+@@ -285,7 +285,7 @@ boot := arch/arm/boot
+ archprepare:
+ 	$(Q)$(MAKE) $(build)=arch/arm/tools include/generated/mach-types.h
+ ifeq ($(CONFIG_AMBARELLA_IPC),y)
+-	$(Q)$(MAKE) $(build)=arch/arm/tools gen-aipc-headers
++#	$(Q)$(MAKE) $(build)=arch/arm/tools gen-aipc-headers
+ endif
+ 
+ # Convert bzImage to zImage
+diff --git a/arch/arm/plat-ambarella/boss/pm.c b/arch/arm/plat-ambarella/boss/pm.c
+index c4ff897..6407932 100755
+--- a/arch/arm/plat-ambarella/boss/pm.c
++++ b/arch/arm/plat-ambarella/boss/pm.c
+@@ -48,7 +48,7 @@
+ 
+ #include <plat/ambcache.h>
+ 
+-#include <generated/ipcgen/i_util.h>
++//#include <generated/ipcgen/i_util.h>
+ 
+ /* ==========================================================================*/
+ #ifdef MODULE_PARAM_PREFIX
+@@ -274,11 +274,11 @@ static int ambarella_pm_hibernation_begin(void)
+ {
+ 	int					retval = 0;
+ 
+-	if (pm_abcheck_info.aoss_info == NULL) {
++/*	if (pm_abcheck_info.aoss_info == NULL) {
+ 		pm_abcopy_page = 0;
+ 		linux_absuspend_check((void *)&pm_abcheck_info);
+ 	}
+-
++*/
+ 	disable_irq(BOSS_VIRT_H2G_INT_REQ_VEC);
+ 	disable_irq(BOSS_VIRT_H2G_MTX_VEC);
+ 
+@@ -370,13 +370,13 @@ static struct platform_hibernation_ops ambarella_pm_hibernation_ops = {
+ 
+ int __init ambarella_init_pm(void)
+ {
+-	pm_power_off = ambarella_power_off;
+-	pm_power_off_prepare = ambarella_power_off_prepare;
++//	pm_power_off = ambarella_power_off;
++//	pm_power_off_prepare = ambarella_power_off_prepare;
+ 
+-	suspend_set_ops(&ambarella_pm_suspend_ops);
+-	hibernation_set_ops(&ambarella_pm_hibernation_ops);
++//	suspend_set_ops(&ambarella_pm_suspend_ops);
++//	hibernation_set_ops(&ambarella_pm_hibernation_ops);
+ 
+-	pm_abcheck_info.aoss_info = NULL;
++//	pm_abcheck_info.aoss_info = NULL;
+ 
+ 	return 0;
+ }
+@@ -392,7 +392,7 @@ int arch_swsusp_write(unsigned int flags)
+ 	ambnation_aoss_call_t			pm_abaoss_entry = NULL;
+ 	u32					pm_abaoss_arg[4];
+ 	u32					pm_fn_pri;
+-
++/*
+ 	if (pm_abcheck_info.aoss_info) {
+ 		for (i = 0; i < 4; i++) {
+ 			pm_abaoss_arg[i] = ambarella_phys_to_virt(
+@@ -439,10 +439,10 @@ int arch_swsusp_write(unsigned int flags)
+ 		in_suspend_ipc_svc = 0;
+ 		swsusp_arch_restore_cpu();
+ 	}
+-
++*/
+ 	return retval;
+ }
+-
++/*
+ static int ambernation_increase_page_info(
+ 	struct ambernation_aoss_info *aoss_info,
+ 	struct ambernation_page_info *src_page_info)
+@@ -491,10 +491,10 @@ static int ambernation_increase_page_info(
+ ambernation_increase_page_info_exit:
+ 	return retval;
+ }
+-
++*/
+ void arch_copy_data_page(unsigned long dst_pfn, unsigned long src_pfn)
+ {
+-	struct ambernation_page_info		src_page_info;
++/*	struct ambernation_page_info		src_page_info;
+ 
+ 	if (pm_abcheck_info.aoss_info) {
+ 		src_page_info.src = __pfn_to_phys(src_pfn);
+@@ -503,5 +503,6 @@ void arch_copy_data_page(unsigned long dst_pfn, unsigned long src_pfn)
+ 		ambernation_increase_page_info(pm_abcheck_info.aoss_info,
+ 			&src_page_info);
+ 	}
++*/
+ }
+ 
+diff --git a/arch/arm/tools/Makefile b/arch/arm/tools/Makefile
+index 3d3fed3..635cb18 100755
+--- a/arch/arm/tools/Makefile
++++ b/arch/arm/tools/Makefile
+@@ -4,44 +4,6 @@
+ # Copyright (C) 2001 Russell King
+ #
+ 
+-ifeq ($(CONFIG_PLAT_AMBARELLA_BOSS),y)
+-BOSSDIR ?= $(shell echo $${PWD%boss*}boss)
+-
+-# IPC direcotry
+-IPCDIR := $(realpath $(BOSSDIR)/ipc)
+-ifeq ($(IPCDIR),)
+-IPCDIR := $(realpath $(BOSSDIR)/android/device/ambarella/ipc)
+-endif
+-ifeq ($(IPCDIR),)
+-$(error "Cannot find IPC directory!!")
+-endif
+-
+-# IPCGEN
+-IPCGEN := $(IPCDIR)/ipcgen
+-IPCGEN_TYPE := ELF
+-
+-# Make sure IPCGEN is an ELF executable
+-ifneq ($(shell file $(IPCGEN) | grep -o $(IPCGEN_TYPE)), $(IPCGEN_TYPE))
+-ERR := $(shell rm -rf $(IPCGEN)* $(IPCDIR)/.tmp)
+-endif
+-
+-IPCGEN_X = $(wildcard $(IPCDIR)/defs/*.x)
+-IPCGEN_H = $(foreach f,$(IPCGEN_X),include/generated/ipcgen/$(patsubst %.x,%.h,$(notdir $(f))))
+-
+-.PHONY: gen-aipc-headers
+-
+-gen-aipc-headers: $(IPCGEN_H)
+-
+-include/generated/ipcgen/%.h: $(IPCDIR)/defs/%.x $(IPCGEN)
+-	@echo "  IPCGEN  $@" ; \
+-	mkdir -p $(dir $@) ; \
+-	$(IPCGEN) -C -M -H -h $(realpath $<) > $@
+-
+-$(IPCGEN): 	$(wildcard $(IPCDIR)/sunrpc/*.*) \
+-		$(wildcard $(IPCDIR)/sunrpc/rpc/*.*) \
+-		$(wildcard $(IPCDIR)/sunrpc/rpvsvc/*.*)
+-	@cd $(IPCDIR) && $(MAKE) $(notdir $@)
+-endif
+ include/generated/mach-types.h: $(src)/gen-mach-types $(src)/mach-types
+ 	@echo '  Generating $@'
+ 	@mkdir -p $(dir $@)
+diff --git a/arch/arm/tools/Makefile_br b/arch/arm/tools/Makefile_br
+index 6488323..ac460c0 100644
+--- a/arch/arm/tools/Makefile_br
++++ b/arch/arm/tools/Makefile_br
+@@ -5,8 +5,8 @@
+ #
+ 
+ IPCOUT	= include/generated/ipcgen
+-include drivers/ambarella-ipc/ipcdef.mk
+-include $(AMBARELLA_IPCDEF)/aipchelper.mk
++#include drivers/ambarella-ipc/ipcdef.mk
++#include $(AMBARELLA_IPCDEF)/aipchelper.mk
+ 
+ .PHONY: gen-aipc-headers
+ 
+diff --git a/drivers/Kconfig b/drivers/Kconfig
+index 2d2354c..fd60ad1 100644
+--- a/drivers/Kconfig
++++ b/drivers/Kconfig
+@@ -122,8 +122,4 @@ source "drivers/platform/Kconfig"
+ 
+ source "drivers/clk/Kconfig"
+ 
+-source "drivers/ambarella-ipc/Kconfig"
+-
+-source "drivers/ambarella-ipc2/Kconfig"
+-
+ endmenu
+diff --git a/drivers/Makefile b/drivers/Makefile
+index 9948e26..560ade06 100644
+--- a/drivers/Makefile
++++ b/drivers/Makefile
+@@ -122,9 +122,9 @@ obj-y				+= clk/
+ 
+ ifndef CONFIG_AMBARELLA_IPC2
+ ifeq ($(CONFIG_AMBARELLA_IPC_HAS_SRC),y)
+-obj-$(CONFIG_AMBARELLA_IPC)	+= ambarella-ipc/
++#obj-$(CONFIG_AMBARELLA_IPC)	+= ambarella-ipc/
+ endif
+ else
+-obj-$(CONFIG_AMBARELLA_IPC)	+= ambarella-ipc2/
++#obj-$(CONFIG_AMBARELLA_IPC)	+= ambarella-ipc2/
+ endif
+ 
+diff --git a/drivers/ambarella-ipc/Makefile b/drivers/ambarella-ipc/Makefile
+index c21a09f..417fe8f 100755
+--- a/drivers/ambarella-ipc/Makefile
++++ b/drivers/ambarella-ipc/Makefile
+@@ -52,11 +52,11 @@ OBJS-S-y = $(foreach f,$(SRCS-S-y),$(patsubst %.c,%.o,$(f)))
+ SRCS-C-y = $(foreach f,$(X-C-y),client/$(patsubst %.x,%_client.c,$(notdir $(f))))
+ OBJS-C-y = $(foreach f,$(SRCS-C-y),$(patsubst %.c,%.o,$(f)))
+ 
+-TAB_I-S-y = $(foreach f,$(X-S-y),ipcgen/$(patsubst %.x,%_tab.i,$(notdir $(f))))
++#TAB_I-S-y = $(foreach f,$(X-S-y),ipcgen/$(patsubst %.x,%_tab.i,$(notdir $(f))))
+ 
+-TAB_I-C-y = $(foreach f,$(X-C-y),ipcgen/$(patsubst %.x,%_tab.i,$(notdir $(f))))
+-CLNT_C-C-y = $(foreach f,$(X-C-y),ipcgen/$(patsubst %.x,%_clnt.c,$(notdir $(f))))
+-CLNT_O-C-y = $(foreach f,$(X-C-y),ipcgen/$(patsubst %.x,%_clnt.o,$(notdir $(f))))
++#TAB_I-C-y = $(foreach f,$(X-C-y),ipcgen/$(patsubst %.x,%_tab.i,$(notdir $(f))))
++#CLNT_C-C-y = $(foreach f,$(X-C-y),ipcgen/$(patsubst %.x,%_clnt.c,$(notdir $(f))))
++#CLNT_O-C-y = $(foreach f,$(X-C-y),ipcgen/$(patsubst %.x,%_clnt.o,$(notdir $(f))))
+ 
+ IPCGEN_TAB_I = $(TAB_I-S-y) $(TAB_I-C-y)
+ IPCGEN_CLNT_C = $(CLNT_C-C-y)
+-- 
+1.7.9.5
+

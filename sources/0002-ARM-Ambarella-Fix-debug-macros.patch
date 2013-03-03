@@ -1,0 +1,35 @@
+From 479d4ef41c743bbea491499a9430c9627d0db27a Mon Sep 17 00:00:00 2001
+From: evilwombat <evilwombat@server.fake>
+Date: Tue, 26 Feb 2013 22:51:06 -0800
+Subject: [PATCH 2/3] ARM: Ambarella: Fix debug-macros
+
+Signed-off-by: evilwombat <evilwombat@server.fake>
+---
+ arch/arm/plat-ambarella/include/mach/debug-macro.S |   11 +++++------
+ 1 file changed, 5 insertions(+), 6 deletions(-)
+
+diff --git a/arch/arm/plat-ambarella/include/mach/debug-macro.S b/arch/arm/plat-ambarella/include/mach/debug-macro.S
+index ce6676c..339b740 100644
+--- a/arch/arm/plat-ambarella/include/mach/debug-macro.S
++++ b/arch/arm/plat-ambarella/include/mach/debug-macro.S
+@@ -26,12 +26,11 @@
+ 
+ #include <mach/hardware.h>
+ 
+-.macro	addruart, rx, tmp
+-	mrc	p15, 0, \rx, c1, c0
+-	tst	\rx, #1			@ MMU enabled?
+-	moveq	\rx, #APB_PHYS_BASE	@ physical base address
+-	movne	\rx, #APB_BASE		@ virtual address
+-	orr	\rx, \rx, #UART_OFFSET
++.macro	addruart, tmp1, tmp2
++	mov	\tmp1, #APB_PHYS_BASE	@ physical base address
++	movne	\tmp2, #APB_BASE	@ virtual address
++	orr	\tmp1, \tmp1, #UART_OFFSET
++	orr	\tmp2, \tmp2, #UART_OFFSET
+ .endm
+ 
+ .macro senduart, rd, rx
+-- 
+1.7.9.5
+
