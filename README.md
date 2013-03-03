@@ -1,12 +1,32 @@
+*************
+* WARNING!! *
+*************
+
 WARNING! Everything here is completely unsupported. Use everything at your own
 risk. The tools here can very easily kill your camera and cause other problems.
 The author takes no responsibility or liability for anything that may arise as
 a consequence of using this software. USE THESE TOOLS AT YOUR OWN RISK.
 
-These are xtremely unofficial and highly experimental tools for booting a Hero2
-camera using the built-in USB command mode.
 
-This mode can be accessed using the following procedure:
+****************
+* Introduction *
+****************
+EVERYTHING HERE IS MEANT FOR ADVANCED USERS who have a hard-bricked Hero2
+camera (as in, the camera will not turn on at all) and who have no other
+choice but to throw the camera away. If you can get warranty support from GoPro
+instead, BY ALL MEANS USE IT. But don't try to do some experimental stuff on
+your own and THEN try to get warranty support - once you start doing anything
+experimental to the camera (including ANYTHING written here), you have voided
+your warranty.
+
+
+********************
+* USB Command Mode *
+********************
+These are extremely unofficial and highly experimental tools for booting a
+Hero2 camera using the built-in USB command mode.
+
+To enter the Hero2 built-in USB command mode, you can do the following:
  1. Disconnect USB from camera
  2. Remove battery
  3. Insert battery
@@ -15,9 +35,11 @@ This mode can be accessed using the following procedure:
  6. Press the Power button
  7. Release the Shutter button
 
-The camera should enumerate as a USB device with a VID/PID of 4255:0001. If so,
-we are in business. At this point, it is possible to send simple commands over
-USB. They are:
+There might not be anything showing on the screen when the Power button is
+pressed. If the charging LED was on, it might turn off. Otherwise, the camera
+will still "look" completely dead. But, the camera should enumerate as a USB
+device with a VID/PID of 4255:0001. If so, we are in business. At this point,
+it is possible to send simple commands over USB. They are:
 - Read from an arbitrary 32-bit word by physical address
 - Write to an arbitrary 32-bit word by physical address
 - Leave USB command mode and jump to specified physical address
@@ -58,6 +80,10 @@ kernel we are trying to load, the BLD/HAL must come from the v222 version of
 the HD2-firmware.bin file, since the offsets and modifications that we make are
 specific to this version. 
 
+
+*******************************************
+* Preparing the necessary bootstrap files *
+*******************************************
 To prepare the BLD and modified HAL, get the v222 HD2-firmware.bin file and
 execute the following command:
 $ ./prepare-bootstrap HD2-firmware.bin
@@ -65,4 +91,126 @@ $ ./prepare-bootstrap HD2-firmware.bin
 This will produce the v222-bld.bin and v222-hal-reloc.bin files. Now gpboot 
 will have the files it needs to bootstrap the camera.
 
-I will finish writing the rest after I've cleaned up some gpboot stuff.
+
+To actually boot the camera, you can use the 'gpboot' command.
+
+The gpboot tool supports three loading modes. They are:
+ - Load bootloader
+ - Load RTOS
+ - Load Linux
+
+
+*************************************
+* Loading the Bootloader (BLD) only *
+*************************************
+$ ./gpboot --bootloader
+
+This will load the BLD (and the pre-modified HAL) and jump into the bootloader.
+If everything else in the camera is okay, the camera should boot normally from
+this point (and you can use some FW update method to reflash the real
+bootloader in flash if it is somehow damaged). If you have serial connected to
+the camera, you can short the TX/RX pins to drop into the bootloader console
+prior to running this command.
+
+
+********************
+* Loading the RTOS *
+********************
+$ ./gpboot --rtos <rtos_file>
+
+This is probably the most "useful" debrick method, but it is also risky.
+This will load the bootloader, modified HAL, and the specified RTOS file to the
+camera. The HAL / RTOS will be loaded at high addresses, along with a small
+relocate.bin file that knows to copy them where they need to be (in case the
+bootloader tries to overwrite the low memory for some reason). The bootloader
+will be patched in RAM to jump to the relocate.bin file rather than booting
+normally, to make sure it does not try to load some corrupted / damaged version
+from flash for whatever reason.
+
+To actually get the RTOS files, see
+https://github.com/evilwombat/gopro-fw-tools
+for a utility that can pull them out of existing HD2-firmware.bin image. The
+RTOS image is NOT the HD2-firmware.bin file in its entirety, but is actually
+a section inside this file. Since there are several firmware versions
+available, there are several RTOS images you can use. In general, it seems like
+a good idea to try to use the RTOS image from the firmware that you were trying
+to install when the camera got bricked. So, if you were trying to downgrade
+from v222 to v124, it makes sense to use the RTOS from the v222 firmware. But,
+I don't have enough data to say "what works best". To save you the trouble of
+running the FW parser, the following DD commands should be able to extract an
+RTOS image from an existing firmware file. Note that each command is specific
+to the firmware version, and using the wrong command with the wrong firmware
+file will result in a useless RTOS image.
+
+	If you want the RTOS from the v124 HD2-firmware.bin file:
+	$ dd if=HD2-firmware.bin skip=213248 conv=notrunc of=rtos_v124.bin count=6344704 bs=1
+
+	If you want the RTOS from the v198 HD2-firmware.bin file:
+	$ dd if=HD2-firmware.bin skip=15862016 conv=notrunc of=rtos_v198.bin count=6246400 bs=1
+
+	If you want the RTOS from the v222 HD2-firmware file:
+	$ dd if=HD2-firmware.bin skip=15866112 conv=notrunc of=rtos_v222.bin count=6250496 bs=1
+
+	(Also keep in mind that v198 and v222 firmware files have an
+	 'alternate' RTOS image as well - this is section_3 if you use
+	 fwparser, but I do not know what the difference between the main and
+	 the alternate images is).
+
+If done correctly (and if you are lucky), the camera will boot up to the point
+that it will be execute RTOS commands from autoexec.ash on the sdcard, which
+could possibly be used to restore the camera to a working state. Keep in mind
+that sometimes something goes wonky with the A:\ drive on the RTOS, so it may
+be necessary to change directory from A:\ to D:\ in autoexec.ash before doing
+any interesting commands (cd d:\).
+
+I do not have an exact autoexec.ash sequence that will reflash the camera to
+a working state that works 100% of the time, but perhaps the autoexec.ash on
+gopro's website is a good start. Keep in mind that 'reboot' from autoexec.ash
+WILL NOT WORK if the camera is booted using the USB mode, meaning that for
+an update to finish, you might have to boot the camera using USB several times,
+with a delay of a few minutes before you turn off the camera and boot again,
+to let the camera "do its thing". This applies to performing updates as well,
+since the camera does "naturally" try to reboot once or twice during the update
+process (which again, won't work in this mode and you may have to do the
+'reboot' by hand).
+
+
+*****************
+* Loading Linux *
+*****************
+
+$ ./gpboot --linux
+
+This is probably the most advanced booting method, and the least useful. This
+command will load a pre-build Linux kernel (zImage) and a pre-built initrd
+(initrd.lzma) to the camera and boot them. The camera will show no signs of
+life on its LCD or LEDs, but it should show up as a newly-detected USB Ethernet
+device. Once that happens, you can telnet to the camera on address 10.9.9.1
+and hopefully get a little Linux shell. This may allow you to examine the state
+of the flash (also, cat /proc/mtd) and be able to do linux commands
+interactively. It is my hope that this can be a useful method to restore the
+flash on a camera that is otherwise totally wiped, but at the moment there is
+no known way to reflash the camera from within Linux that has worked.
+There should also be kernel messages and a shell on the camera's serial port,
+at 115200 baud.
+
+The kernel commandline options are hard-coded into gpboot.c, and if you are
+advanced enough that you want to change them, you can modify the file and
+rebuild :). If you want to build your own kernel, see sources/sources.txt.
+The kernel here is basically the kernel that was posted on gopro's website
+(http://gopro.com/support/open-source) with some modifications to make it
+actually compile, and some fixes. See sources/ for the patches applied to the
+kernel (on top of gopro's tarball). There should be a kernel config file in
+there as well. There is also a busybox config file, but I did not modify
+busybox (and you can get the source from busybox.net - see sources.txt).
+
+Why did I use LZMA as the compression method over the more widely-used GZIP?
+It seems to result in smaller files, which means shorter times needed to load
+the stuff over USB.
+
+
+Well, that's that - have fun, be careful, and again, do everything at your own
+risk, and don't blame me for anything that goes wrong. But I hope someone can
+find this stuff useful, and can make a reliable hard-debrick method.
+
+- evilwombat
