@@ -80,6 +80,18 @@ the HD2-firmware.bin file, since the offsets and modifications that we make are
 specific to this version. 
 
 
+Compiling and Dependencies
+==========================
+The gpboot program requires libusb-1.0.0 to interact with the camera, so you
+will need to install the libusb-1.0.0 development files before compiling. On
+an Ubuntu system, you can do this with the following command:
+$ sudo apt-get install libusb-1.0.0-dev
+
+Once that is installed, you can build gpboot and prepare-bootstrap with a
+simple make command:
+$ make
+
+
 Preparing the necessary bootstrap files
 =======================================
 
