@@ -1,6 +1,6 @@
-*************
-* WARNING!! *
-*************
+ *************
+ * WARNING!! *
+ *************
 
 WARNING! Everything here is completely unsupported. Use everything at your own
 risk. The tools here can very easily kill your camera and cause other problems.
@@ -8,9 +8,9 @@ The author takes no responsibility or liability for anything that may arise as
 a consequence of using this software. USE THESE TOOLS AT YOUR OWN RISK.
 
 
-****************
-* Introduction *
-****************
+ ****************
+ * Introduction *
+ ****************
 EVERYTHING HERE IS MEANT FOR ADVANCED USERS who have a hard-bricked Hero2
 camera (as in, the camera will not turn on at all) and who have no other
 choice but to throw the camera away. If you can get warranty support from GoPro
@@ -20,9 +20,9 @@ experimental to the camera (including ANYTHING written here), you have voided
 your warranty.
 
 
-********************
-* USB Command Mode *
-********************
+ ********************
+ * USB Command Mode *
+ ********************
 These are extremely unofficial and highly experimental tools for booting a
 Hero2 camera using the built-in USB command mode.
 
@@ -81,9 +81,9 @@ the HD2-firmware.bin file, since the offsets and modifications that we make are
 specific to this version. 
 
 
-*******************************************
-* Preparing the necessary bootstrap files *
-*******************************************
+ *******************************************
+ * Preparing the necessary bootstrap files *
+ *******************************************
 To prepare the BLD and modified HAL, get the v222 HD2-firmware.bin file and
 execute the following command:
 $ ./prepare-bootstrap HD2-firmware.bin
@@ -100,9 +100,9 @@ The gpboot tool supports three loading modes. They are:
  - Load Linux
 
 
-*************************************
-* Loading the Bootloader (BLD) only *
-*************************************
+ *************************************
+ * Loading the Bootloader (BLD) only *
+ *************************************
 $ ./gpboot --bootloader
 
 This will load the BLD (and the pre-modified HAL) and jump into the bootloader.
@@ -113,9 +113,9 @@ the camera, you can short the TX/RX pins to drop into the bootloader console
 prior to running this command.
 
 
-********************
-* Loading the RTOS *
-********************
+ ********************
+ * Loading the RTOS *
+ ********************
 $ ./gpboot --rtos <rtos_file>
 
 This is probably the most "useful" debrick method, but it is also risky.
@@ -175,9 +175,9 @@ process (which again, won't work in this mode and you may have to do the
 'reboot' by hand).
 
 
-*****************
-* Loading Linux *
-*****************
+ *****************
+ * Loading Linux *
+ *****************
 
 $ ./gpboot --linux
 
