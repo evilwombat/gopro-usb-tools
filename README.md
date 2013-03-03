@@ -7,13 +7,13 @@ These are xtremely unofficial and highly experimental tools for booting a Hero2
 camera using the built-in USB command mode.
 
 This mode can be accessed using the following procedure:
-1. Disconnect USB from camera
-2. Remove battery
-3. Insert battery
-4. Press and HOLD the Shutter button
-5. Plug in USB
-6. Press the Power button
-7. Release the Shutter button
+ 1. Disconnect USB from camera
+ 2. Remove battery
+ 3. Insert battery
+ 4. Press and HOLD the Shutter button
+ 5. Plug in USB
+ 6. Press the Power button
+ 7. Release the Shutter button
 
 The camera should enumerate as a USB device with a VID/PID of 4255:0001. If so,
 we are in business. At this point, it is possible to send simple commands over
