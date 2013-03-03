@@ -85,10 +85,12 @@ Compiling and Dependencies
 The gpboot program requires libusb-1.0.0 to interact with the camera, so you
 will need to install the libusb-1.0.0 development files before compiling. On
 an Ubuntu system, you can do this with the following command:
+
  $ sudo apt-get install libusb-1.0.0-dev
 
 Once that is installed, you can build gpboot and prepare-bootstrap with a
 simple make command:
+
  $ make
 
 
@@ -104,6 +106,7 @@ Preparing the necessary bootstrap files
 
 To prepare the BLD and modified HAL, get the v222 HD2-firmware.bin file and
 execute the following command:
+
  $ ./prepare-bootstrap HD2-firmware.bin
 
 This will produce the v222-bld.bin and v222-hal-reloc.bin files. Now gpboot 
