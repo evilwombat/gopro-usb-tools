@@ -191,7 +191,7 @@ int gp_init_ddr(libusb_device_handle *dev, struct gp_ddr_cmd *seq)
 
 int gp_test_ddr(libusb_device_handle *dev)
 {
-	uint32_t tmp, addr, expect, magic1 = 3126727440, magic2 = 13834356;
+	uint32_t tmp, addr, expect, magic1 = 3126727440U, magic2 = 13834356;
 	int ret, test_count = 1000;
 	unsigned int i;
 
