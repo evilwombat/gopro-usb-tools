@@ -140,7 +140,7 @@ Loading the RTOS
 ================
  $ ./gpboot --rtos rtos_file
 
-This is probably the most "useful" debrick method, but it is also risky.
+This is probably the most "useful" booting method, but it is also risky.
 This will load the bootloader, modified HAL, and the specified RTOS file to the
 camera. The HAL / RTOS will be loaded at high addresses, along with a small
 relocate.bin file that knows to copy them where they need to be (in case the
