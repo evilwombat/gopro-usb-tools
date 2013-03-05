@@ -46,10 +46,8 @@ int gp_init_interface(libusb_device_handle *dev)
 
 	ret = libusb_set_configuration(dev, 0);
 
-	if (ret) {
-		printf("Could not set device configuration: %d\n", ret);
-		return ret;
-	}
+	if (ret)
+		printf("Could not set device configuration: %d. Continuing anyway.\n", ret);
 
 /*	
 	// I don't think we need this but "it seems like a good idea"
@@ -275,7 +273,7 @@ int gp_load_file(libusb_device_handle *dev, const char *name, uint32_t addr)
 
 	size = (int)st.st_size;
 
-	FILE *fd = fopen(name, "r");
+	FILE *fd = fopen(name, "rb");
 	if (!fd) {
 		fprintf(stderr, "Could not open %s\n", name);
 		return -1;

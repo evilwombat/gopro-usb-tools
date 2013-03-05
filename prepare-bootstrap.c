@@ -38,7 +38,7 @@ int save_section(FILE *fd, const char *output_name, int length, struct patch_ent
 	FILE *ofd;
 	int i, j;
 	char t;
-	ofd = fopen(output_name, "w+");
+	ofd = fopen(output_name, "wb+");
 
 	if (!ofd) {
 		printf("Could not write to %s\n", output_name);
@@ -95,7 +95,7 @@ int main(int argc, char **argv)
 		return -1;
 	}
 
-	fd = fopen(fname, "r");
+	fd = fopen(fname, "rb");
 	if (!fd) {
 		printf("Could not open %s\n", fname);
 		return -1;
