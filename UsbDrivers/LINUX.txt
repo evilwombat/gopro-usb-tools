@@ -1,0 +1,5 @@
+Linux does not need a driver :)
+
+But make sure that libusb-1.0.0 is installed (on Ubuntu: sudo apt-get libusb-1.0.0-dev).
+You might need to run gpboot through sudo or as root (same idea), or add a magic udev
+rule to grant permission to the USB device for non-root users.

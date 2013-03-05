@@ -102,6 +102,23 @@ camera accessible by non-root users. Or, you could run gpboot with the
 'sudo' command.
 
 
+Windows Version
+===============
+An even more experimental (and even less tested) but pre-built Windows version
+of prepare-bootstrap and gpboot is included here. These should operate like the
+Linux version (hopefully). Since Windows insists on having a specific driver
+for each USB device, I've included a quick "driver" for the camera when it is
+in command mode. This driver was made with Zadig.exe (see here:
+http://www.libusb.org/wiki/windows_backend) but I know very little about
+Windows and its drivers or how they work. Still, you should be able to open a
+Windows command prompt and use prepare-bootstrap.exe and gpboot.exe as
+described here. Miraculously, when running gpboot.exe --linux, the USB/Ethernet
+device created by the camera does in fact get recognized by Windows, but I had
+to unplug/replug USB to the camera after Linux was booted to make sure the
+network was fully working. For anyone interested, the Windows version was built
+using MinGW / MSYS.
+
+
 Preparing the necessary bootstrap files
 =======================================
 
