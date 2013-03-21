@@ -225,7 +225,7 @@ int main(int argc, char **argv)
 {
 	int ret, i;
 	libusb_device_handle *usb_dev;
-	printf("\nevilwombat's gopro boot thingy v0.01\n\n");
+	printf("\nevilwombat's gopro boot thingy v0.02 (alt ddr)\n\n");
 	printf("MAKE SURE YOU HAVE READ THE INSTRUCTIONS!\n");
 	printf("The author makes absolutely NO GUARANTEES of the correctness of this program\n");
 	printf("and takes absolutely NO RESPONSIBILITY OR LIABILITY for any consequences that\n");
@@ -264,7 +264,7 @@ int main(int argc, char **argv)
 		return -1;
 	}
 
-	ret = gp_init_ddr(usb_dev, hero2_ddr_init_seq);
+	ret = gp_init_ddr(usb_dev, hero2_alt_ddr_init_seq);
 	if (ret) {
 		printf("Could not initialize DDR: %d\n", ret);
 		return -1;
