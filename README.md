@@ -18,6 +18,10 @@ your own and THEN try to get warranty support - once you start doing anything
 experimental to the camera (including ANYTHING written here), you have voided
 your warranty.
 
+Some forum users have gotten these tools to work as a debrick method for their
+Hero2 cameras - more information can be found here:
+http://goprouser.freeforums.org/booting-a-hard-bricked-hero2-camera-over-usb-experimental-t11626.html
+
 
 USB Command Mode
 ================
@@ -221,8 +225,8 @@ Loading Linux
 
 This is probably the most advanced booting method, and the least useful. This
 command will load a pre-build Linux kernel (zImage) and a pre-built initrd
-(initrd.lzma) to the camera and boot them. The camera will show no signs of
-life on its LCD or LEDs, but it should show up as a newly-detected USB Ethernet
+(initrd.lzma) to the camera and boot them. The front LED should show a heartbeat
+pattern, and the camera should show up as a newly-detected USB Ethernet
 device. Once that happens, you can telnet to the camera on address 10.9.9.1
 and hopefully get a little Linux shell. This may allow you to examine the state
 of the flash (also, cat /proc/mtd) and be able to do linux commands
@@ -234,7 +238,8 @@ haven't really tried this all that much. I did include 'nanddump' and
 CAREFUL!). How the state of the flash relates to the CRCs in the partition
 table (PTB, also mtd1) is still not quite clear to me, either.
 There should also be kernel messages and a shell on the camera's serial port,
-at 115200 baud.
+at 115200 baud. The sdcard slot should be working as well, with the card being
+accessible via /dev/mmcblk0 (or /dev/mmcblk0p1, etc).
 
 The kernel commandline options are hard-coded into gpboot.c, and if you are
 advanced enough that you want to change them, you can modify the file and
