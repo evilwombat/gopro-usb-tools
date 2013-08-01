@@ -88,15 +88,15 @@ int gp_load_linux(libusb_device_handle *dev, const char *kernel,
 int gp_boot_linux(libusb_device_handle *dev)
 {
 	int ret = 0;
-        ret = gp_load_file(dev, "v222-bld.bin", 0xc0000000);
+        ret = gp_load_file(dev, "v312-bld.bin", 0xc0000000);
 	if (ret) {
-		printf("Could not load v222-bld.bin - did you run prepare-boostrap?\n");
+		printf("Could not load v312-bld.bin - did you run prepare-boostrap?\n");
 		return -1;
 	}
 
-	ret = gp_load_file(dev, "v222-hal-reloc.bin", 0xc00a0000);
+	ret = gp_load_file(dev, "v312-hal-reloc.bin", 0xc00a0000);
 	if (ret) {
-		printf("Could not load v222-hal-reloc.bin - did you run prepare-boostrap?\n");
+		printf("Could not load v312-hal-reloc.bin - did you run prepare-boostrap?\n");
 		return -1;
 	}
 
@@ -120,15 +120,15 @@ int gp_boot_linux(libusb_device_handle *dev)
 int gp_boot_bld(libusb_device_handle *dev)
 {
 	int ret = 0;
-        ret = gp_load_file(dev, "v222-bld.bin", 0xc0000000);
+        ret = gp_load_file(dev, "v312-bld.bin", 0xc0000000);
 	if (ret) {
-		printf("Could not load v222-bld.bin - did you run prepare-boostrap?\n");
+		printf("Could not load v312-bld.bin - did you run prepare-boostrap?\n");
 		return -1;
 	}
 
-	ret = gp_load_file(dev, "v222-hal-reloc.bin", 0xc00a0000);
+	ret = gp_load_file(dev, "v312-hal-reloc.bin", 0xc00a0000);
 	if (ret) {
-		printf("Could not load v222-hal-reloc.bin - did you run prepare-boostrap?\n");
+		printf("Could not load v312-hal-reloc.bin - did you run prepare-boostrap?\n");
 		return -1;
 	}
 
@@ -146,9 +146,9 @@ int gp_boot_bld(libusb_device_handle *dev)
 int gp_boot_rtos(libusb_device_handle *dev, const char *rtos_file)
 {
 	int ret = 0;
-        ret = gp_load_file(dev, "v222-bld.bin", 0xc0000000);
+        ret = gp_load_file(dev, "v312-bld.bin", 0xc0000000);
 	if (ret) {
-		printf("Could not load v222-bld.bin - did you run prepare-boostrap?\n");
+		printf("Could not load v312-bld.bin - did you run prepare-boostrap?\n");
 		return -1;
 	}
 
@@ -158,9 +158,9 @@ int gp_boot_rtos(libusb_device_handle *dev, const char *rtos_file)
 		return -1;
 	}
 	
-	ret = gp_load_file(dev, "v222-hal-reloc.bin", 0xc8000000);
+	ret = gp_load_file(dev, "v312-hal-reloc.bin", 0xc8000000);
 	if (ret) {
-		printf("Could not load v222-hal-reloc.bin - did you run prepare-boostrap?\n");
+		printf("Could not load v312-hal-reloc.bin - did you run prepare-boostrap?\n");
 		return -1;
 	}
 
@@ -168,7 +168,7 @@ int gp_boot_rtos(libusb_device_handle *dev, const char *rtos_file)
 	if (ret) {
 		printf("Could not load RTOS file %s\n", rtos_file);
 		printf("This should be section_3 from the v124 firmware, or section_9 from\n");
-		printf("the v198 / v222 firmware, depending on what you are doing.\n");
+		printf("the v198 / v222 / v312 firmware, depending on what you are doing.\n");
 		return -1;
 	}
 
@@ -189,12 +189,12 @@ void print_usage(const char *name)
 {
 	printf("Usage:\n");
 	printf("      %s --bootloader\n", name);
-	printf("      Load v222 BLD and fixed-up HAL, and jump to BLD\n");
+	printf("      Load v312 BLD and fixed-up HAL, and jump to BLD\n");
 	printf("\n");
 	printf("      %s --rtos [rtos_section]\n", name);
-	printf("      Try to boot the given RTOS image using the v222 fixed-up HAL\n");
+	printf("      Try to boot the given RTOS image using the v312 fixed-up HAL\n");
 	printf("      In fw v124, this is section_3\n");
-	printf("      In fw v198 and v222, this is section_9 or section_3\n");
+	printf("      In fw v198 / v222 / v312, this is section_9 or section_3\n");
 	printf("\n");
 	printf("      %s --linux\n", name);
 	printf("      Boot a Linux kernel. If this works, the camera should show up as\n");
@@ -225,7 +225,7 @@ int main(int argc, char **argv)
 {
 	int ret, i;
 	libusb_device_handle *usb_dev;
-	printf("\nevilwombat's gopro boot thingy v0.02 (alt ddr)\n\n");
+	printf("\nevilwombat's gopro boot thingy v0.03 (alt ddr, using fw v312)\n\n");
 	printf("MAKE SURE YOU HAVE READ THE INSTRUCTIONS!\n");
 	printf("The author makes absolutely NO GUARANTEES of the correctness of this program\n");
 	printf("and takes absolutely NO RESPONSIBILITY OR LIABILITY for any consequences that\n");
@@ -251,9 +251,9 @@ int main(int argc, char **argv)
 	usb_dev = libusb_open_device_with_vid_pid(NULL, 0x4255, 0x0001);
 	
 	if (!usb_dev) {
-		printf("Could not the camera USB device.\n");
-		printf(" - Do you have permissions to access the USB device?\n");
+		printf("Could not find the camera USB device.\n");
 		printf(" - Is the camera plugged in? Is it in USB command mode?\n");
+		printf(" - If you are using Linux, do you have permissions to access the USB device?\n");
 		return -1;
 	}
 	

@@ -22,13 +22,13 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <unistd.h>
-#include "hal-patch-v222.h"
+#include "hal-patch-v312.h"
 
 void print_version_message(const char *name)
 {
 	printf("\n\n");
-	printf("This does not look like the v222 HD2-firmware.bin update file.\n");
-	printf("You MUST run %s on the v222 Hero2 firmware update file,\n", name);
+	printf("This does not look like the v312 HD2-firmware.bin update file.\n");
+	printf("You MUST run %s on the v312 Hero2 firmware update file,\n", name);
 	printf("regardless of what firmware you are actually trying to load.\n");
 	printf("\n");
 }
@@ -58,11 +58,11 @@ int save_section(FILE *fd, const char *output_name, int length, struct patch_ent
 	fclose(ofd);
 }
 
-#define BLD_NAME	"v222-bld.bin"
+#define BLD_NAME	"v312-bld.bin"
 #define BLD_START	8448
-#define BLD_SIZE	162496
+#define BLD_SIZE	163216
 
-#define HAL_NAME	"v222-hal-reloc.bin"
+#define HAL_NAME	"v312-hal-reloc.bin"
 #define HAL_START	172288
 #define HAL_SIZE	55724
 
@@ -75,10 +75,10 @@ int main(int argc, char **argv)
 	FILE *fd;
 	struct stat st;
 
-	printf("evilwombat's gopro bootstrap fwcutter tool v0.01\n");
+	printf("evilwombat's gopro bootstrap fwcutter tool v0.02\n");
 	
 	if (argc != 2) {
-		printf("Usage: %s [HD2-firmware.bin from the *v222* update]\n", argv[0]);
+		printf("Usage: %s [HD2-firmware.bin from the *v312* update]\n", argv[0]);
 		return -1;
 	}
 	
@@ -90,7 +90,7 @@ int main(int argc, char **argv)
 		return -1;
 	}
 
-	if (st.st_size != 52606976) {
+	if (st.st_size != 52850688) {
 		print_version_message(argv[0]);
 		return -1;
 	}
@@ -113,7 +113,7 @@ int main(int argc, char **argv)
 
 	printf("Creating %s\n", HAL_NAME);
 	fseek(fd, HAL_START, SEEK_SET);
-	ret = save_section(fd, HAL_NAME, HAL_SIZE, hal_patch_v222, ARRAY_SIZE(hal_patch_v222));
+	ret = save_section(fd, HAL_NAME, HAL_SIZE, hal_patch_v312, ARRAY_SIZE(hal_patch_v312));
 
 	if (ret) {
 		printf("Could not save %s\n", HAL_NAME);

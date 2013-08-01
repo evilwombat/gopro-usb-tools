@@ -78,8 +78,8 @@ need to do the following things:
 
 I am not able to include the BLD and modified HAL binaries directly in the
 repo, but there is a tool to extract the binaries (and perform the HAL fix-ups)
-from the v222 HD2-firmware.bin file. Regardless of which RTOS version or Linux
-kernel we are trying to load, the BLD/HAL must come from the v222 version of
+from the v312 HD2-firmware.bin file. Regardless of which RTOS version or Linux
+kernel we are trying to load, the BLD/HAL must come from the v312 version of
 the HD2-firmware.bin file, since the offsets and modifications that we make are
 specific to this version. See "Preparing the necessary bootstrap files" below
 for how to do this.
@@ -126,14 +126,14 @@ using MinGW / MSYS.
 Preparing the necessary bootstrap files
 =======================================
 
-To prepare the BLD and modified HAL, get the v222 HD2-firmware.bin file and
+To prepare the BLD and modified HAL, get the v312 HD2-firmware.bin file and
 execute the following command:
 
  $ ./prepare-bootstrap HD2-firmware.bin
 
-This will produce the v222-bld.bin and v222-hal-reloc.bin files. Now gpboot 
+This will produce the v312-bld.bin and v312-hal-reloc.bin files. Now gpboot
 will have the files it needs to bootstrap the camera. Again, this
-prepare-bootstrap commands MUST be run on the v222 firmware update file,
+prepare-bootstrap commands MUST be run on the v312 firmware update file,
 regardless of what you are actually trying to load and boot in the end.
 
 
@@ -194,9 +194,12 @@ file will result in a useless RTOS image.
 	If you want the RTOS from the v222 HD2-firmware file:
 	$ dd if=HD2-firmware.bin skip=15866112 conv=notrunc of=rtos_v222.bin count=6250496 bs=1
 
-	(Also keep in mind that v198 and v222 firmware files have an
+	If you want the RTOS from the v312 HD2-firmware file:
+	$ dd if=HD2-firmware.bin skip=15870208 conv=notrunc of=rtos_v312.bin count=6258688 bs=1
+
+	(Also keep in mind that v198, v222, and v312 firmware files have an
 	 'alternate' RTOS image as well - this is section_3 if you use
-	 fwparser, but I do not know what the difference between the main and
+	 fwunpacker, but I do not know what the difference between the main and
 	 the alternate images is).
 
 If done correctly (and if you are lucky), the camera will boot up to the point
