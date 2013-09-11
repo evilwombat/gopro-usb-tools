@@ -104,7 +104,7 @@ int gp_boot_linux(libusb_device_handle *dev)
 	gp_write_reg(dev, 0xc00024c4, 0xe3a0f4C3);	// Jump to 0xc3000000
 
 	gp_load_linux(dev, "zImage", "initrd.lzma",
-		      "mem=200M@0xc3000000 console=ttyS0,115200n8 root=/dev/ram0 init=/bin/sh ");
+		      "mem=200M@0xc3000000 console=tty0 console=ttyS0,115200n8 root=/dev/ram0 init=/bin/sh ");
 
 	printf("Okay, here goes nothing...\n");
 
