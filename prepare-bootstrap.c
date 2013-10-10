@@ -22,16 +22,7 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <unistd.h>
-#include "hal-patch-v312.h"
-
-void print_version_message(const char *name)
-{
-	printf("\n\n");
-	printf("This does not look like the v312 HD2-firmware.bin update file.\n");
-	printf("You MUST run %s on the v312 Hero2 firmware update file,\n", name);
-	printf("regardless of what firmware you are actually trying to load.\n");
-	printf("\n");
-}
+#include "fw-patch.h"
 
 int save_section(FILE *fd, const char *output_name, int length, struct patch_entry *pat, int pat_len)
 {
@@ -58,27 +49,105 @@ int save_section(FILE *fd, const char *output_name, int length, struct patch_ent
 	fclose(ofd);
 }
 
-#define BLD_NAME	"v312-bld.bin"
-#define BLD_START	8448
-#define BLD_SIZE	163216
-
-#define HAL_NAME	"v312-hal-reloc.bin"
-#define HAL_START	172288
-#define HAL_SIZE	55724
-
 #define ARRAY_SIZE(v)  (sizeof(v) / sizeof(*(v)))
+
+struct section_type {
+	const char *filename;
+	unsigned int start;
+	unsigned int size;
+	struct patch_entry *patch;
+	unsigned int patch_size;
+};
+
+struct fw_type {
+	const char *name;
+	unsigned int size;
+	struct section_type *sections;
+};
+
+struct section_type hero2_v312_sections[] = {
+	{
+		.filename = "v312-bld.bin",
+		.start = 8448,
+		.size = 163216,
+	},
+	{
+		.filename = "v312-hal-reloc.bin",
+		.start = 172288,
+		.size = 55724,
+		.patch = hal_patch_v312,
+		.patch_size = ARRAY_SIZE(hal_patch_v312),
+	},
+	{ }
+};
+
+struct section_type h3b_v300_sections[] = {
+	{
+		.filename = "h3b-v300-bld.bin",
+		.start = 6400,
+		.size = 154916,
+	},
+	{
+		.filename = "h3b-v300-hal-reloc.bin",
+		.start = 162048,
+		.size = 48856,
+		.patch = h3b_v300_hal_patch,
+		.patch_size = ARRAY_SIZE(h3b_v300_hal_patch),
+	},
+	{
+		.filename = "h3b-v300-rtos-patched.bin",
+		.start = 211200,
+		.size = 7364612,
+		.patch = h3b_v300_rtos_patch,
+		.patch_size = ARRAY_SIZE(h3b_v300_rtos_patch),
+	},
+	{ },
+};
+
+struct fw_type fw_list[] =
+{
+	{
+		.name = "Hero2 v312 Firmware",
+		.size = 52850688,
+		.sections = hero2_v312_sections,
+	},
+	{
+		.name = "Hero3 (Black) v3.00 Firmware",
+		.size = 41054208,
+		.sections = h3b_v300_sections,
+	},
+	{ }
+};
+
+void print_version_message(const char *name)
+{
+	struct fw_type *fw = fw_list;
+	printf("\n");
+	printf("This does not look like a supported firmware file.\n");
+	printf("You MUST run %s on one of the supported firmware update files,\n", name);
+	printf("regardless of what firmware you are actually trying to load. Please\n");
+	printf("read the instructions that led you here.\n\n");
+	printf("Supported firmware files:\n");
+	while(fw->name) {
+		printf("  * %s\n", fw->name);
+		fw++;
+	}
+	printf("\n");
+}
 
 int main(int argc, char **argv)
 {
 	int ret = 0;
 	char *fname;
+	struct fw_type *fw = fw_list;
+	struct section_type *section;
 	FILE *fd;
 	struct stat st;
 
-	printf("evilwombat's gopro bootstrap fwcutter tool v0.02\n");
+	printf("evilwombat's gopro bootstrap fwcutter tool v0.03\n\n");
 	
 	if (argc != 2) {
-		printf("Usage: %s [HD2-firmware.bin from the *v312* update]\n", argv[0]);
+		printf("Usage: %s [HD2-firmware.bin from the *v312* hero2 update or HD3.03-firmware.bin for the H3 Black]\n", argv[0]);
 		return -1;
 	}
 	
@@ -90,10 +159,18 @@ int main(int argc, char **argv)
 		return -1;
 	}
 
-	if (st.st_size != 52850688) {
+	while (fw->name) {
+		if (fw->size == st.st_size)
+			break;
+		fw++;
+	}
+
+	if (fw->name == NULL) {
 		print_version_message(argv[0]);
 		return -1;
 	}
+
+	printf("Detected firmware file type: \"%s\"\n", fw->name);
 
 	fd = fopen(fname, "rb");
 	if (!fd) {
@@ -101,24 +178,19 @@ int main(int argc, char **argv)
 		return -1;
 	}
 
-	printf("Creating %s\n", BLD_NAME);
-	fseek(fd, BLD_START, SEEK_SET);
-	ret = save_section(fd, BLD_NAME, BLD_SIZE, NULL, 0);
+	section = fw->sections;
 
-	if (ret) {
-		printf("Could not save %s\n", BLD_NAME);
-		fclose(fd);
-		return -1;
-	}
+	while (section->filename) {
+		printf("Creating %s\n", section->filename);
+		fseek(fd, section->start, SEEK_SET);
+		ret = save_section(fd, section->filename, section->size, section->patch, section->patch_size);
 
-	printf("Creating %s\n", HAL_NAME);
-	fseek(fd, HAL_START, SEEK_SET);
-	ret = save_section(fd, HAL_NAME, HAL_SIZE, hal_patch_v312, ARRAY_SIZE(hal_patch_v312));
-
-	if (ret) {
-		printf("Could not save %s\n", HAL_NAME);
-		fclose(fd);
-		return -1;
+		if (ret) {
+			printf("Could not save %s\n", section->filename);
+			fclose(fd);
+			return -1;
+		}
+		section++;
 	}
 	
 	printf("Done.\n");
