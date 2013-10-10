@@ -104,6 +104,29 @@ struct section_type h3b_v300_sections[] = {
 	{ },
 };
 
+struct section_type h3pb_v104_sections[] = {
+	{
+		.filename = "h3pb-v104-bld.bin",
+		.start = 102656,
+		.size = 162432,
+	},
+	{
+		.filename = "h3pb-v104-hal-reloc.bin",
+		.start = 266496,
+		.size = 48856,
+		.patch = h3pb_v104_hal_patch,
+		.patch_size = ARRAY_SIZE(h3pb_v104_hal_patch),
+	},
+	{
+		.filename = "h3pb-v104-rtos-patched.bin",
+		.start = 315648,
+		.size = 8085508,
+		.patch = h3pb_v104_rtos_patch,
+		.patch_size = ARRAY_SIZE(h3pb_v104_rtos_patch),
+	},
+	{ },
+};
+
 struct fw_type fw_list[] =
 {
 	{
@@ -116,6 +139,12 @@ struct fw_type fw_list[] =
 		.size = 41054208,
 		.sections = h3b_v300_sections,
 	},
+	{
+		.name = "Hero3 Plus (Black) v1.04 Firmware",
+		.size = 44294132,
+		.sections = h3pb_v104_sections,
+	},
+
 	{ }
 };
 
@@ -144,7 +173,7 @@ int main(int argc, char **argv)
 	FILE *fd;
 	struct stat st;
 
-	printf("evilwombat's gopro bootstrap fwcutter tool v0.03\n\n");
+	printf("evilwombat's gopro bootstrap fwcutter tool v0.04\n\n");
 	
 	if (argc != 2) {
 		printf("Usage: %s [HD2-firmware.bin from the *v312* hero2 update or HD3.03-firmware.bin for the H3 Black]\n", argv[0]);
