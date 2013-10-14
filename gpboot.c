@@ -88,6 +88,41 @@ int gp_load_linux(libusb_device_handle *dev, const char *kernel,
 	return 0;
 }
 
+int gp_h3b_boot_linux(libusb_device_handle *dev)
+{
+	int ret = 0;
+        ret = gp_load_file(dev, "v312-bld.bin", 0xc0000000);
+	if (ret) {
+		printf("Could not load v312-bld.bin - did you run prepare-boostrap?\n");
+		printf("You should run prepare-bootstrap on the Hero2 v312 HD2-firmware.bin\n");
+		printf("file (even though you are booting an H3B) because we still need the\n");
+		printf("BLD section from there to make Linux work...\n");
+		return -1;
+	}
+
+	ret = gp_load_file(dev, "h3b-v300-hal-reloc.bin", 0xc00a0000);
+	if (ret) {
+		printf("Could not load v300-h3b-hal-reloc.bin - did you run prepare-boostrap?\n");
+		return -1;
+	}
+
+	printf("Patching in a vector to 0xc3000000...\n");
+	gp_write_reg(dev, 0xc00024c4, 0xe3a0f4c3);	// Jump to 0xc3000000
+
+	gp_load_linux(dev, "zImage-a7", "initrd.lzma",
+		      "mem=200M@0xc3000000 console=tty0 console=ttyS0,115200n8 root=/dev/ram0 init=/bin/sh ", 0xe11);
+
+	printf("Okay, here goes nothing...\n");
+
+	ret = gp_exec(dev, 0xc0000000);
+	if (ret) {
+		printf("Exec failed: %d\n", ret);
+		return ret;
+	}
+
+	return 0;
+}
+
 int gp_boot_linux(libusb_device_handle *dev)
 {
 	int ret = 0;
