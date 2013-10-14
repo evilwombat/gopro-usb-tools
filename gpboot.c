@@ -223,6 +223,46 @@ int gp_boot_rtos(libusb_device_handle *dev, const char *rtos_file)
 	return 0;
 }
 
+int gp_h3b_boot_rtos(libusb_device_handle *dev, const char *rtos_file)
+{
+	int ret = 0;
+
+	ret = gp_load_file(dev, "evilbootstrap.bin", 0xc0000000);
+	if (ret) {
+		printf("Could not load evilbootstrap.bin\n");
+		return -1;
+	}
+
+	ret = gp_load_file(dev, "h3b-v300-hal-reloc.bin", 0xc00a0000);
+	if (ret) {
+		printf("Could not load h3b-v300-hal-reloc.bin - did you run prepare-boostrap?\n");
+		return -1;
+	}
+
+	ret = gp_load_file(dev, rtos_file, 0xc0100000);
+	if (ret) {
+		printf("Could not load RTOS file %s\n", rtos_file);
+		printf("This should be the patched RTOS file that was made by prepare-bootstrap\n");
+		return -1;
+	}
+
+	printf("Okay, here goes nothing...\n");
+
+	/* Jump to evilbootstrap. This will blink the LEDs for a few seconds and then jump to the
+	 * RTOS at address 0xc0100000. The delay gives us time to unplug USB before the RTOS
+	 * boots, or else it will go into USB storage mode, which isn't very useful unless all
+	 * we want is an expensive card reader.
+	 */
+	ret = gp_exec(dev, 0xc0000000);
+
+	if (ret) {
+		printf("Exec failed: %d\n", ret);
+		return ret;
+	}
+
+	return 0;
+}
+
 void print_usage(const char *name)
 {
 	printf("Usage:\n");
