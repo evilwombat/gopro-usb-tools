@@ -30,7 +30,8 @@
 
 /* We assume the entry point for our kernel will be 0xc3000000 */
 int gp_load_linux(libusb_device_handle *dev, const char *kernel,
-		  const char *initrd, const char *cmdline)
+		  const char *initrd, const char *cmdline,
+		  unsigned int mach_type)
 {
 	char cmdline_buf[CMDLINE_LEN];
 	int cmd_len = strlen(cmdline);
@@ -60,8 +61,10 @@ int gp_load_linux(libusb_device_handle *dev, const char *kernel,
 	}
 	
 	printf("Patching in some init code...\n");
-	gp_write_reg(dev, 0xc3000000, 0xe3a01e40);	// mov r1, 0x400
-	gp_write_reg(dev, 0xc3000004, 0xe38110c7);	// orr r1, r1, 0x0c7	; machine type
+	printf("Setting ARM machine type to 0x%04x\n", mach_type);
+	gp_write_reg(dev, 0xc3000000, 0xe3a01e40 | ((mach_type >> 4) & 0xf0));	// mov r1, mach_type >> 4
+	gp_write_reg(dev, 0xc3000004, 0xe3811000 | (mach_type & 0xff));		// orr r1, r1, mach_type & 0xff
+
 	gp_write_reg(dev, 0xc3000008, 0xe3a024c3);	// mov r2, 0xc3000000
 	gp_write_reg(dev, 0xc300000C, 0xe3822020);	// orr r2, r2, 0x20	; atags at c3000020
 	gp_write_reg(dev, 0xc3000010, 0xea001ffa);	// b 0xc3008000	; kernel start
@@ -104,7 +107,7 @@ int gp_boot_linux(libusb_device_handle *dev)
 	gp_write_reg(dev, 0xc00024c4, 0xe3a0f4C3);	// Jump to 0xc3000000
 
 	gp_load_linux(dev, "zImage", "initrd.lzma",
-		      "mem=200M@0xc3000000 console=tty0 console=ttyS0,115200n8 root=/dev/ram0 init=/bin/sh ");
+		      "mem=200M@0xc3000000 console=tty0 console=ttyS0,115200n8 root=/dev/ram0 init=/bin/sh ", 0x4c7);
 
 	printf("Okay, here goes nothing...\n");
 
