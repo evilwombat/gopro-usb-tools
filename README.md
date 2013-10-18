@@ -10,7 +10,7 @@ a consequence of using this software. USE THESE TOOLS AT YOUR OWN RISK.
 Introduction
 ============
 
-EVERYTHING HERE IS MEANT FOR ADVANCED USERS who have a hard-bricked Hero2
+EVERYTHING HERE IS MEANT FOR ADVANCED USERS who have a hard-bricked Hero2 / H3 Black
 camera (as in, the camera will not turn on at all) and who have no other
 choice but to throw the camera away. If you can get warranty support from GoPro
 instead, BY ALL MEANS USE IT. But don't try to do some experimental stuff on
@@ -22,14 +22,16 @@ Some forum users have gotten these tools to work as a debrick method for their
 Hero2 cameras - more information can be found here:
 http://goprouser.freeforums.org/booting-a-hard-bricked-hero2-camera-over-usb-experimental-t11626.html
 
+Hero3 Black thread:
+http://goprouser.freeforums.org/booting-a-hard-bricked-hero3-black-camera-over-usb-danger-t14791.html
 
 USB Command Mode
 ================
 
 These are extremely unofficial and highly experimental tools for booting a
-Hero2 camera using the built-in USB command mode.
+Hero2 / Hero3 Black camera using the built-in USB command mode.
 
-To enter the Hero2 built-in USB command mode, you can do the following:
+To enter the built-in USB command mode, you can do the following:
  1. Disconnect USB from camera
  2. Remove battery
  3. Insert battery
@@ -41,8 +43,9 @@ To enter the Hero2 built-in USB command mode, you can do the following:
 There might not be anything showing on the screen when the Power button is
 pressed. If the charging LED was on, it might turn off. Otherwise, the camera
 will still "look" completely dead. But, the camera should enumerate as a USB
-device with a VID/PID of 4255:0001. If so, we are in business. At this point,
-it is possible to send simple commands over USB. They are:
+device with a VID/PID of 4255:0001 (for Hero2) or VID/PID of 4255:0003 for the
+Hero3 Black. If so, we are in business. At this point, it is possible to send
+simple commands over USB. They are:
 - Read from an arbitrary 32-bit word by physical address
 - Write to an arbitrary 32-bit word by physical address
 - Leave USB command mode and jump to specified physical address
@@ -65,8 +68,8 @@ Another problem is that before the camera software runs, the BLD bootloader
 loads the HAL section and makes some modifications to it, presumably to 
 relocate the HAL to a place where the Linux kernel and the RTOS can get to it
 (since the HAL code does not seem to be position-independent). Without these
-modifications, the raw HAL section found in the HD2-firmware.bin file is not
-usable.
+modifications, the raw HAL section found in the HD2-firmware.bin (or
+HD3.03-firmware.bin) file is not usable.
 
 So, to load and execute anything interesting, such as Linux or the RTOS, we
 need to do the following things:
@@ -78,18 +81,24 @@ need to do the following things:
 
 I am not able to include the BLD and modified HAL binaries directly in the
 repo, but there is a tool to extract the binaries (and perform the HAL fix-ups)
-from the v312 HD2-firmware.bin file. Regardless of which RTOS version or Linux
-kernel we are trying to load, the BLD/HAL must come from the v312 version of
-the HD2-firmware.bin file, since the offsets and modifications that we make are
-specific to this version. See "Preparing the necessary bootstrap files" below
-for how to do this.
+from the v312 HD2-firmware.bin file (or the v300 HD3.03-firmware.bin file for
+the Hero3 Black). Regardless of which RTOS version or Linux kernel we are trying
+to load, the BLD must come from the v312 version of the HD2-firmware.bin file,
+since the offsets and modifications that we make are specific to this version.
+See "Preparing the necessary bootstrap files" below for how to do this. The HAL
+comes from the HD2-firmware.bin or HD3.03-firmware.bin depending on the type of
+camera, but we still use the BLD from the Hero2 firmware to get the hardware
+going, regardless of camera type.
 
 
 Compiling and Dependencies
 ==========================
-The gpboot program requires libusb-1.0.0 to interact with the camera, so you
-will need to install the libusb-1.0.0 development files before compiling. On
-an Ubuntu system, you can do this with the following command:
+For Windows, there are pre-built EXE files included, so there is no need to
+compile anything.
+
+For compiling on Linux, the gpboot program requires libusb-1.0.0 to interact
+with the camera, so you will need to install the libusb-1.0.0 development files
+before compiling. On an Ubuntu system, you can do this with the following command:
 
  $ sudo apt-get install libusb-1.0.0-dev
 
@@ -122,27 +131,36 @@ to unplug/replug USB to the camera after Linux was booted to make sure the
 network was fully working. For anyone interested, the Windows version was built
 using MinGW / MSYS.
 
+If the included Windows driver gives you problems (or isn't signed, etc), you
+should be able to use Zadig.exe to make and install your own driver. The Hero2
+USB ID is 4255:0001 and the Hero3 Black uses 4255:0003. Zadig.exe might even try
+to auto-detect the first "unknown device".
 
 Preparing the necessary bootstrap files
 =======================================
 
-To prepare the BLD and modified HAL, get the v312 HD2-firmware.bin file and
+To prepare the BLD and modified HAL, get the v312 HD2-firmware.bin file (if you have
+a Hero2) or the v300 HD3.03-firmware.bin file (if you have a Hero3 Black) and
 execute the following command:
 
- $ ./prepare-bootstrap HD2-firmware.bin
+ prepare-bootstrap HD2-firmware.bin
+- or -
+ prepare-bootstrap HD3.03-firmware.bin
 
-This will produce the v312-bld.bin and v312-hal-reloc.bin files. Now gpboot
-will have the files it needs to bootstrap the camera. Again, this
-prepare-bootstrap commands MUST be run on the v312 firmware update file,
-regardless of what you are actually trying to load and boot in the end.
+This will produce the necessary BLD and HAL files. Now gpboot will have the files
+it needs to bootstrap the camera. Again, this prepare-bootstrap commands MUST be
+run on the v312 (or v300 for H3B) firmware update files, regardless of what you are
+actually trying to load and boot in the end.
 
 
 To actually boot the camera, you can use the 'gpboot' command.
 
-The gpboot tool supports three loading modes. They are:
- - Load bootloader
- - Load RTOS
- - Load Linux
+The gpboot tool supports five loading modes. They are:
+ - Load bootloader (for Hero2 only)
+ - Load RTOS (for Hero2)
+ - Load RTOS (for Hero3 Black)
+ - Load Linux (for Hero2)
+ - Load Linux (for Hero3 Black)
 
 
 Loading the Bootloader (BLD) only
@@ -154,11 +172,11 @@ If everything else in the camera is okay, the camera should boot normally from
 this point (and you can use some FW update method to reflash the real
 bootloader in flash if it is somehow damaged). If you have serial connected to
 the camera, you can short the TX/RX pins to drop into the bootloader console
-prior to running this command.
+prior to running this command. This option only applies to the Hero2 camera.
 
 
-Loading the RTOS
-================
+Loading the RTOS on the Hero2
+=============================
  $ ./gpboot --rtos rtos_file
 
 This is probably the most "useful" booting method, but it is also risky.
@@ -170,7 +188,7 @@ will be patched in RAM to jump to the relocate.bin file rather than booting
 normally, to make sure it does not try to load some corrupted / damaged version
 from flash for whatever reason.
 
-To actually get the RTOS files, see
+To actually get the RTOS files for the Hero2 camera, see
 https://github.com/evilwombat/gopro-fw-tools
 for a utility that can pull them out of existing HD2-firmware.bin image. The
 RTOS image is NOT the HD2-firmware.bin file in its entirety, but is actually
@@ -221,8 +239,41 @@ process (which again, won't work in this mode and you may have to do the
 'reboot' by hand).
 
 
-Loading Linux
-=============
+Loading the RTOS on the Hero3 Black
+===================================
+ $ ./gpboot --h3b-rtos h3b-v300-rtos-patched.bin
+
+This is probably the most "useful" booting method, but it is also risky.
+This will load the bootloader, modified HAL, and the specified RTOS file to the
+camera. For the Hero3 Black, the necessary RTOS file (h3b-v300-rtos-patched.bin)
+is generated by prepare-bootstrap, so there is no need to ue fwunpacker to create
+it (like we would need to do on the Hero2). The RTOS file gets patched to get
+around an unfortunate "feature" of the RTOS, where it tries to detect why it was
+booted, and shut down if there isn't a good reason. I guess this is needed if the
+RTOS was woken up by the wifi button or something, so it could turn on wifi and
+shut itself down again. Since the RTOS isn't really expecting to be booted over
+USB, it will detect the USB connection and then go into charging mode (instead of
+booting up), which is not very useful for debricking. So, we patch the RTOS file
+a little bit to ignore the bootup reason and just boot up anyway.
+
+If you run this option, the Hero3 BLD, HAL, and RTOS will be loaded in memory, and
+the BLD will be patched to jump to our code instead of trying to read the RTOS from
+flash. We actually load another small file - evilbootstrap.bin. This file is just
+a small delay program that will blink the front red LED a few times and delay for
+a few seconds before jumping to the RTOS. The reason for loading this little delay
+is to give the user the opportunity to disconnect USB from the camera after the
+loading is complete, but before the RTOS starts running. If we don't do this, the
+RTOS will detect the USB connection and go into USB storage mode, rather than
+booting normally, which is not very useful. So, as soon as the RTOS loading gets to
+100% and the red light starts blinking, you can unplug USB and the RTOS will try to
+boot within a few seconds. I expect the RTOS to be largely non-functional, since the
+DSP won't be loaded or running, but the RTOS might in theory be able to read the
+update.cmd file off the sdcard, or autoexec.ash
+
+
+
+Loading Linux on the Hero2
+==========================
 
  $ ./gpboot --linux
 
@@ -253,6 +304,21 @@ actually compile, and some fixes. See sources/ for the patches applied to the
 kernel (on top of gopro's tarball). There should be a kernel config file in
 there as well. There is also a busybox config file, but I did not modify
 busybox (and you can get the source from busybox.net - see sources.txt).
+
+
+Loading Linux on the Hero3 Black
+================================
+
+ $ ./gpboot --h3b-linux
+
+This is essentially the same as the Hero2 Linux method described above, only
+it will load a kernel (zImage-a7) which works on the Hero3 Black. Note that
+to load Linux on the H3B, you need to run prepare-bootstrap on both the Hero2
+v312 firmare, and then on the Hero3 v300 firmware, since this option requires
+the Hero2 BLD section and the Hero3 Black HAL section to get things going.
+Sadly, I haven't figured out how to use the Hero3 Black BLD to get Linux going,
+so we are forced to use the Hero2 BLD for this.
+
 
 Why did I use LZMA as the compression method over the more widely-used GZIP?
 It seems to result in smaller files, which means shorter times needed to load
