@@ -163,9 +163,9 @@ The gpboot tool supports five loading modes. They are:
  - Load Linux (for Hero3 Black)
 
 
-Loading the Bootloader (BLD) only
-=================================
- $ ./gpboot --bootloader
+Loading the Bootloader (BLD) only on the Hero2
+==============================================
+ gpboot --bootloader
 
 This will load the BLD (and the pre-modified HAL) and jump into the bootloader.
 If everything else in the camera is okay, the camera should boot normally from
@@ -177,7 +177,7 @@ prior to running this command. This option only applies to the Hero2 camera.
 
 Loading the RTOS on the Hero2
 =============================
- $ ./gpboot --rtos rtos_file
+ gpboot --rtos rtos_file
 
 This is probably the most "useful" booting method, but it is also risky.
 This will load the bootloader, modified HAL, and the specified RTOS file to the
@@ -241,7 +241,7 @@ process (which again, won't work in this mode and you may have to do the
 
 Loading the RTOS on the Hero3 Black
 ===================================
- $ ./gpboot --h3b-rtos h3b-v300-rtos-patched.bin
+ gpboot --h3b-rtos h3b-v300-rtos-patched.bin
 
 This is probably the most "useful" booting method, but it is also risky.
 This will load the bootloader, modified HAL, and the specified RTOS file to the
@@ -275,7 +275,7 @@ update.cmd file off the sdcard, or autoexec.ash
 Loading Linux on the Hero2
 ==========================
 
- $ ./gpboot --linux
+ gpboot --linux
 
 This is probably the most advanced booting method, and the least useful. This
 command will load a pre-build Linux kernel (zImage) and a pre-built initrd
@@ -309,7 +309,7 @@ busybox (and you can get the source from busybox.net - see sources.txt).
 Loading Linux on the Hero3 Black
 ================================
 
- $ ./gpboot --h3b-linux
+ gpboot --h3b-linux
 
 This is essentially the same as the Hero2 Linux method described above, only
 it will load a kernel (zImage-a7) which works on the Hero3 Black. Note that
