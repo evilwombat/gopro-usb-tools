@@ -45,6 +45,7 @@ struct gp_ddr_cmd {
 extern struct gp_ddr_cmd hero2_ddr_init_seq[];
 extern struct gp_ddr_cmd hero2_alt_ddr_init_seq[];
 extern struct gp_ddr_cmd hero3black_ddr_init_seq[];
+extern struct gp_ddr_cmd hero3plusblack_ddr_init_seq[];
 
 /*
  * int gp_init_interface(libusb_device_handle *dev)
