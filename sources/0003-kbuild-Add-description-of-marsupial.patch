@@ -1,7 +1,7 @@
-From 1fded71fd71950cbb0fa64d47e0dfb907a0808b1 Mon Sep 17 00:00:00 2001
+From f9e5ab3d4a233c63aa06b62a828c449c9e2d2171 Mon Sep 17 00:00:00 2001
 From: evilwombat <evilwombat@server.fake>
 Date: Sat, 2 Mar 2013 23:30:05 -0800
-Subject: [PATCH 3/3] kbuild: Add description of marsupial
+Subject: [PATCH 03/13] kbuild: Add description of marsupial
 
 Because the existing username and hostname are boring.
 
@@ -11,7 +11,7 @@ Signed-off-by: evilwombat <evilwombat@server.fake>
  1 file changed, 2 insertions(+), 2 deletions(-)
 
 diff --git a/scripts/mkcompile_h b/scripts/mkcompile_h
-index 50ad317..06a5da5 100755
+index 50ad317..06a5da53 100755
 --- a/scripts/mkcompile_h
 +++ b/scripts/mkcompile_h
 @@ -64,8 +64,8 @@ UTS_TRUNCATE="cut -b -$UTS_LEN"

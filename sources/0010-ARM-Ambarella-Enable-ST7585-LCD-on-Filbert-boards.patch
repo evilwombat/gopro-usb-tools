@@ -1,0 +1,97 @@
+From 49ed475c984fd94b91390fc725ddbedd214be5fc Mon Sep 17 00:00:00 2001
+From: evilwombat <evilwombat@server.fake>
+Date: Sun, 9 Mar 2014 20:30:19 -0700
+Subject: [PATCH 10/13] ARM: Ambarella: Enable ST7585 LCD on Filbert boards
+
+Modify the SPI2.7 device declaration to use the st7585fb
+framebuffer driver on Filbert (Hero3 / Hero3+?) boards.
+
+Signed-off-by: evilwombat <evilwombat@server.fake>
+---
+ arch/arm/mach-ambarella/init-filbert.c |   69 +-------------------------------
+ 1 file changed, 2 insertions(+), 67 deletions(-)
+
+diff --git a/arch/arm/mach-ambarella/init-filbert.c b/arch/arm/mach-ambarella/init-filbert.c
+index eb6053a..f7db313 100644
+--- a/arch/arm/mach-ambarella/init-filbert.c
++++ b/arch/arm/mach-ambarella/init-filbert.c
+@@ -125,74 +125,9 @@ static struct platform_device *ambarella_devices[] __initdata = {
+ /* ==========================================================================*/
+ static struct spi_board_info ambarella_spi_devices[] = {
+ 	{
+-		.modalias	= "spidev",
+-		.bus_num	= 0,
+-		.chip_select	= 0,
+-	},
+-	{
+-		.modalias	= "spidev",
+-		.bus_num	= 0,
+-		.chip_select	= 1,
+-	},
+-	{
+-		.modalias	= "spidev",
+-		.bus_num	= 0,
+-		.chip_select	= 2,
+-	},
+-	{
+-		.modalias	= "spidev",
+-		.bus_num	= 0,
+-		.chip_select	= 3,
+-	},
+-	{
+-		.modalias	= "spidev",
+-		.bus_num	= 0,
+-		.chip_select	= 4,
+-	},
+-	{
+-		.modalias	= "spidev",
+-		.bus_num	= 0,
+-		.chip_select	= 5,
+-	},
+-	{
+-		.modalias	= "spidev",
+-		.bus_num	= 1,
+-		.chip_select	= 0,
+-	},
+-	{
+-		.modalias	= "spidev",
+-		.bus_num	= 2,
+-		.chip_select	= 0,
+-	},
+-	{
+-		.modalias	= "spidev",
+-		.bus_num	= 2,
+-		.chip_select	= 1,
+-	},
+-	{
+-		.modalias	= "spidev",
+-		.bus_num	= 2,
+-		.chip_select	= 2,
+-	},
+-	{
+-		.modalias	= "spidev",
+-		.bus_num	= 2,
+-		.chip_select	= 3,
+-	},
+-	{
+-		.modalias	= "spidev",
+-		.bus_num	= 2,
+-		.chip_select	= 4,
+-	},
+-	{
+-		.modalias	= "spidev",
+-		.bus_num	= 2,
+-		.chip_select	= 5,
+-	},
+-	{
+-		.modalias	= "spidev",
++		.modalias	= "st7585fb",
+ 		.bus_num	= 2,
+-		.chip_select	= 6,
++		.chip_select	= 7,
+ 	},
+ };
+ 
+-- 
+1.7.9.5
+

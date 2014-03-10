@@ -1,7 +1,7 @@
-From 77c8a80e412550f3f47369f6c220de30dfe5664c Mon Sep 17 00:00:00 2001
+From 00bae7c99e96026d4cbe0d9ecbb242f59e1cc781 Mon Sep 17 00:00:00 2001
 From: evilwombat <evilwombat@server.fake>
 Date: Tue, 6 Aug 2013 21:25:12 -0700
-Subject: [PATCH] ARM: Ambarella: Configure GPIOs for SPI0
+Subject: [PATCH 06/13] ARM: Ambarella: Configure GPIOs for SPI0
 
 Add the GPIO configuration entries to put the SPI0 GPIOs
 into hardware-control mode, to allow use of the SPI core to

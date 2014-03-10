@@ -1,7 +1,7 @@
 From c8d756a44c87f2453d272150d8c8ddaebcce5829 Mon Sep 17 00:00:00 2001
 From: evilwombat <evilwombat@server.fake>
 Date: Wed, 1 May 2013 00:20:23 -0700
-Subject: [PATCH 5/6] ARM: Ambarella: Configure GPIOs for sdcard / buttons
+Subject: [PATCH 05/13] ARM: Ambarella: Configure GPIOs for sdcard / buttons
 
 Add the GPIO configuration needed to support the sdcard
 slot and the power / record buttons on the Hero2 camera.

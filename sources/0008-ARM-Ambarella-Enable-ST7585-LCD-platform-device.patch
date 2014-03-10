@@ -1,7 +1,7 @@
-From 354117a8158999583bcfd44ac45cb658d6399087 Mon Sep 17 00:00:00 2001
+From 5661f59accffb3574927f7570bead22bf0097269 Mon Sep 17 00:00:00 2001
 From: evilwombat <evilwombat@server.fake>
 Date: Mon, 9 Sep 2013 21:29:37 -0700
-Subject: [PATCH 2/2] ARM: Ambarella: Enable ST7585 LCD platform device
+Subject: [PATCH 08/13] ARM: Ambarella: Enable ST7585 LCD platform device
 
 Modify the SPI0.0 device declaration to use the st7585fb
 framebuffer driver.

@@ -1,7 +1,7 @@
-From 97296b5213caf1db89abb5ee80c2ba896cedfc88 Mon Sep 17 00:00:00 2001
+From 3d31ebb9fee2973f96cdfafa51040d19e1f5d9b1 Mon Sep 17 00:00:00 2001
 From: evilwombat <evilwombat@server.fake>
 Date: Tue, 30 Apr 2013 22:20:00 -0700
-Subject: [PATCH] ARM: Ambarella: Add Hero3 Black LED devices
+Subject: [PATCH 09/13] ARM: Ambarella: Add Hero3 Black LED devices
 
 Add the platform devices for supporting the GPIO-based
 LEDs on the Heror3 Black camera.

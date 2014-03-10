@@ -1,7 +1,7 @@
 From 98405ba7395621875b74feaa5f01cba05e408c46 Mon Sep 17 00:00:00 2001
 From: evilwombat <evilwombat@server.fake>
 Date: Tue, 30 Apr 2013 22:20:00 -0700
-Subject: [PATCH 4/6] ARM: Ambarella: Add Hero2 LED devices
+Subject: [PATCH 04/13] ARM: Ambarella: Add Hero2 LED devices
 
 Add the platform devices for supporting the GPIO-based
 LEDs on the Hero2 camera.

@@ -1,7 +1,7 @@
-From 4df1142e6f0c5c7062ba34224f7de78d4a15fe47 Mon Sep 17 00:00:00 2001
+From 26c314990a6167c975761a57ff77fb28e605a635 Mon Sep 17 00:00:00 2001
 From: evilwombat <evilwombat@server.fake>
 Date: Sat, 17 Aug 2013 23:57:32 -0700
-Subject: [PATCH 1/2] video: st7585: Add Sitronix ST7585 framebuffer driver
+Subject: [PATCH 07/13] video: st7585: Add Sitronix ST7585 framebuffer driver
 
 Add a framebuffer driver for Sitronix ST7585 LCDs.
 
@@ -50,7 +50,7 @@ index ae6edd5..678a92a 100644
  obj-$(CONFIG_FB_CARMINE)          += carminefb.o
 diff --git a/drivers/video/st7585fb.c b/drivers/video/st7585fb.c
 new file mode 100644
-index 0000000..ff92901
+index 0000000..b80871b
 --- /dev/null
 +++ b/drivers/video/st7585fb.c
 @@ -0,0 +1,284 @@
@@ -195,7 +195,7 @@ index 0000000..ff92901
 +
 +int spisend(struct st7585_data *drvdata, unsigned int val)
 +{
-+	return spi_write(drvdata->spi, &val, 2);
++	return spi_write(drvdata->spi, (u8 *) &val, 2);
 +}
 +
 +static void st7585fb_deferred_io(struct fb_info *info,
@@ -246,11 +246,11 @@ index 0000000..ff92901
 +	if (ret)
 +		return ret;
 +
-+	printk("esend: %d\n", spisend(drvdata, 0x21));
-+	printk("send: %d\n", spisend(drvdata, 0x90));
-+	printk("send: %d\n", spisend(drvdata, 0x20));
-+	printk("send: %d\n", spisend(drvdata, 0x0c));
-+	printk("send: %d\n", spisend(drvdata, 0x8e));
++	spisend(drvdata, 0x21);
++	spisend(drvdata, 0x90);
++	spisend(drvdata, 0x20);
++	spisend(drvdata, 0x0c);
++	spisend(drvdata, 0x8e);
 +
 +	drvdata->info = framebuffer_alloc(0, &spi->dev);
 +	if (!drvdata->info) {
