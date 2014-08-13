@@ -127,6 +127,29 @@ struct section_type h3pb_v104_sections[] = {
 	{ },
 };
 
+struct section_type h3pb_v200_sections[] = {
+	{
+		.filename = "h3pb-v200-bld.bin",
+		.start = 102656,
+		.size = 162656,
+	},
+	{
+		.filename = "h3pb-v200-hal-reloc.bin",
+		.start = 266496,
+		.size = 47356,
+		.patch = h3pb_v200_hal_patch,
+		.patch_size = ARRAY_SIZE(h3pb_v200_hal_patch),
+	},
+	{
+		.filename = "h3pb-v200-rtos-patched.bin",
+		.start = 315648,
+		.size = 8241156,
+		.patch = h3pb_v200_rtos_patch,
+		.patch_size = ARRAY_SIZE(h3pb_v200_rtos_patch),
+	},
+	{ },
+};
+
 struct fw_type fw_list[] =
 {
 	{
@@ -143,6 +166,12 @@ struct fw_type fw_list[] =
 		.name = "Hero3 Plus (Black) v1.04 Firmware",
 		.size = 44294132,
 		.sections = h3pb_v104_sections,
+	},
+
+	{
+		.name = "Hero3 Plus (Black) v2.00 Firmware",
+		.size = 44439548,
+		.sections = h3pb_v200_sections,
 	},
 
 	{ }
