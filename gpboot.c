@@ -32,6 +32,7 @@
 #define CAMTYPE_H2	2
 #define CAMTYPE_H3B	3
 #define CAMTYPE_H3PB	4
+#define CAMTYPE_H4	5
 
 /* We assume the entry point for our kernel will be 0xc3000000 */
 int gp_load_linux(libusb_device_handle *dev, const char *kernel,
@@ -333,6 +334,9 @@ int get_camera_option(int argc, char ** argv)
 	if (argc == 3 && strcmp(argv[1], "--h3pb-rtos") == 0)
 		return CAMTYPE_H3PB;
 	
+	if (argc == 2 && strcmp(argv[1], "--hero4-ddr-test") == 0)
+		return CAMTYPE_H4;
+
 	return -1;
 }
 
@@ -367,6 +371,8 @@ int main(int argc, char **argv)
 
 	if (cam_type == CAMTYPE_H2)
 		usb_dev = libusb_open_device_with_vid_pid(NULL, 0x4255, 0x0001);
+	else if (cam_type == CAMTYPE_H4)
+		usb_dev = libusb_open_device_with_vid_pid(NULL, 0x4255, 0x0009);
 	else
 		usb_dev = libusb_open_device_with_vid_pid(NULL, 0x4255, 0x0003);
 	
@@ -392,6 +398,10 @@ int main(int argc, char **argv)
 
 	if (cam_type == CAMTYPE_H3PB)
 		ret = gp_init_ddr(usb_dev, hero3plusblack_ddr_init_seq);
+
+	if (cam_type == CAMTYPE_H4)
+		ret = gp_init_ddr(usb_dev, hero4_ddr_init_seq);
+
 
 	if (ret) {
 		printf("Could not initialize DDR: %d\n", ret);
