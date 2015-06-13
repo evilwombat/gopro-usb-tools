@@ -97,12 +97,13 @@ int gp_load_linux(libusb_device_handle *dev, const char *kernel,
 int gp_h3b_boot_linux(libusb_device_handle *dev, const char *hal_file)
 {
 	int ret = 0;
-        ret = gp_load_file(dev, "v312-bld.bin", 0xc0000000);
+	unsigned int temp;
+
+	ret = gp_load_file(dev, "h3b-v300-bld.bin", 0xc0000000);
 	if (ret) {
-		printf("Could not load v312-bld.bin - did you run prepare-boostrap?\n");
-		printf("You should run prepare-bootstrap on the Hero2 v312 HD2-firmware.bin\n");
-		printf("file (even though you are booting an H3B) because we still need the\n");
-		printf("BLD section from there to make Linux work...\n");
+		printf("Could not load h3b-v300-bld.bin - did you run prepare-boostrap?\n");
+		printf("You should run prepare-bootstrap on the Hero3 Black v300 firmware\n");
+		printf("file, to generate some of the files needed to make Linux work...\n");
 		return -1;
 	}
 
@@ -113,7 +114,12 @@ int gp_h3b_boot_linux(libusb_device_handle *dev, const char *hal_file)
 	}
 
 	printf("Patching in a vector to 0xc3000000...\n");
-	gp_write_reg(dev, 0xc00024c4, 0xe3a0f4c3);	// Jump to 0xc3000000
+	gp_write_reg(dev, 0xc0002a50, 0xe3a0f4c3);	// Jump to 0xc3000000
+
+	printf("Poking at I2S MUX (?) register...\n");
+	temp = gp_read_reg(dev, 0x6000a050);
+	temp &= ~0x0A;
+	gp_write_reg(dev, 0x6000a050, temp);
 
 	gp_load_linux(dev, "zImage-a7", "initrd.lzma",
 		      "mem=200M@0xc3000000 console=tty0 console=ttyS0,115200n8 root=/dev/ram0 init=/bin/sh ", 0xe11);
