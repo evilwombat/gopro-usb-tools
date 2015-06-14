@@ -312,13 +312,11 @@ Loading Linux on the Hero3 Black
  gpboot --h3b-linux
 
 This is essentially the same as the Hero2 Linux method described above, only
-it will load a kernel (zImage-a7) which works on the Hero3 Black. Note that
-to load Linux on the H3B, you need to run prepare-bootstrap on both the Hero2
-v312 firmare, and then on the Hero3 v300 firmware, since this option requires
-the Hero2 BLD section and the Hero3 Black HAL section to get things going.
-Sadly, I haven't figured out how to use the Hero3 Black BLD to get Linux going,
-so we are forced to use the Hero2 BLD for this.
-
+it will load a kernel (zImage-a7) which works on the Hero3 Black. Recent
+updates have allowed the Hero3 Black to be booted without relying on Hero2
+firmware, which was a long-overdue fix. Thanks to forum user 'narcoticrex' for
+mailing me a bricked Hero3 Black, which allowed me to dig deep enough to make
+this possible.
 
 Why did I use LZMA as the compression method over the more widely-used GZIP?
 It seems to result in smaller files, which means shorter times needed to load
