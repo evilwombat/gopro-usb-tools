@@ -88,6 +88,13 @@ struct section_type h3b_v300_sections[] = {
 		.size = 154916,
 	},
 	{
+		.filename = "h3b-v300-bld-uart.bin",
+		.start = 6400,
+		.size = 154916,
+		.patch = h3b_v300_bld_uart_patch,
+		.patch_size = ARRAY_SIZE(h3b_v300_bld_uart_patch),
+	},
+	{
 		.filename = "h3b-v300-hal-reloc.bin",
 		.start = 162048,
 		.size = 48856,

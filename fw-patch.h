@@ -426,6 +426,17 @@ struct patch_entry h3pb_v104_hal_patch[] = {
 	{0xbe87, 0xfe},
 };
 
+struct patch_entry h3b_v300_bld_uart_patch[] = {
+	{0xfca8, 0x01},	/* Bypass initial NAND access */
+	{0xfca9, 0x00},
+	{0xfcaa, 0xe0},
+	{0xfcab, 0xe3},
+	{0xfd58, 0x7a},	/* Jump straight to UART input loop */
+	{0xfd59, 0x00},
+	{0xfd5a, 0x00},
+	{0xfd5b, 0xea},
+};
+
 /*
  * Patch a mov r0, #0 instruction at the point where the RTOS checks its
  * power-on reason, because we are booting from USB the RTOS would otherwise
