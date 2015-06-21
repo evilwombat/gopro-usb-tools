@@ -94,6 +94,39 @@ int gp_load_linux(libusb_device_handle *dev, const char *kernel,
 	return 0;
 }
 
+int gp_h3b_boot_bld(libusb_device_handle *dev, const char *hal_file, const char *bld_file)
+{
+	int ret = 0;
+	unsigned int temp;
+
+	ret = gp_load_file(dev, bld_file, 0xc0000000);
+	if (ret) {
+		printf("Could not load BLD file %s\n", bld_file);
+		return -1;
+	}
+
+	ret = gp_load_file(dev, hal_file, 0xc00a0000);
+	if (ret) {
+		printf("Could not load %s - did you run prepare-boostrap?\n", hal_file);
+		return -1;
+	}
+
+	printf("Poking at I2S MUX (?) register...\n");
+	temp = gp_read_reg(dev, 0x6000a050);
+	temp &= ~0x0A;
+	gp_write_reg(dev, 0x6000a050, temp);
+
+	printf("Okay, here goes nothing...\n");
+
+	ret = gp_exec(dev, 0xc0000000);
+	if (ret) {
+		printf("Exec failed: %d\n", ret);
+		return ret;
+	}
+
+	return 0;
+}
+
 int gp_h3b_boot_linux(libusb_device_handle *dev, const char *hal_file)
 {
 	int ret = 0;
@@ -299,6 +332,11 @@ void print_usage(const char *name)
 	printf("      up as a USB Ethernet device and you should be able to use it to telnet\n");
 	printf("      to it at 10.9.9.1\n");
 	printf("\n");
+	printf("      %s --h3b-bld [bld file]\n", name);
+	printf("      Try to load the given BLD bootloader using the H3B v300 fixed-up HAL.\n");
+	printf("      This may be useful if you have a camera with a corrupted BST or BLD,\n");
+	printf("      partition, or if you have soldered a UART connection to your camera.\n");
+	printf("\n");
 	printf("      %s --h3b-rtos [rtos file]\n", name);
 	printf("      Try to boot the given RTOS image using the H3B v300 fixed-up HAL\n");
 	printf("      You will likely want to use the patched H3B RTOS image that was\n");
@@ -334,6 +372,9 @@ int get_camera_option(int argc, char ** argv)
 	if (argc == 3 && strcmp(argv[1], "--h3b-rtos") == 0)
 		return CAMTYPE_H3B;
 
+	if (argc == 3 && strcmp(argv[1], "--h3b-bld") == 0)
+		return CAMTYPE_H3B;
+
 	if (argc == 2 && strcmp(argv[1], "--h3pb-linux") == 0)
 		return CAMTYPE_H3PB;
 
@@ -350,7 +391,7 @@ int main(int argc, char **argv)
 {
 	int ret, i, cam_type;
 	libusb_device_handle *usb_dev;
-	printf("\nevilwombat's gopro boot thingy v0.06\n\n");
+	printf("\nevilwombat's gopro boot thingy v0.07\n\n");
 	printf("MAKE SURE YOU HAVE READ THE INSTRUCTIONS!\n");
 	printf("The author makes absolutely NO GUARANTEES of the correctness of this program\n");
 	printf("and takes absolutely NO RESPONSIBILITY OR LIABILITY for any consequences that\n");
@@ -435,6 +476,9 @@ int main(int argc, char **argv)
 	} else if (strcmp(argv[1], "--h3b-rtos") == 0) {
 		printf("Okay, loading and booting RTOS image %s on a Hero3 Black camera\n", argv[2]);
 		gp_h3b_boot_rtos(usb_dev,  "h3b-v300-hal-reloc.bin", argv[2]);
+	} else if (strcmp(argv[1], "--h3b-bld") == 0) {
+		printf("Okay, loading and booting BLD image %s on a Hero3 Black camera\n", argv[2]);
+		gp_h3b_boot_bld(usb_dev,  "h3b-v300-hal-reloc.bin", argv[2]);
 	} else if (strcmp(argv[1], "--h3pb-linux") == 0) {
 		printf("Okay, loading and booting Linux on a Hero3+ Black camera\n");
 		gp_h3b_boot_linux(usb_dev, "h3pb-v200-hal-reloc.bin");
