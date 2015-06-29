@@ -391,7 +391,7 @@ int main(int argc, char **argv)
 {
 	int ret, i, cam_type;
 	libusb_device_handle *usb_dev;
-	printf("\nevilwombat's gopro boot thingy v0.07\n\n");
+	printf("\nevilwombat's gopro boot thingy v0.08\n\n");
 	printf("MAKE SURE YOU HAVE READ THE INSTRUCTIONS!\n");
 	printf("The author makes absolutely NO GUARANTEES of the correctness of this program\n");
 	printf("and takes absolutely NO RESPONSIBILITY OR LIABILITY for any consequences that\n");

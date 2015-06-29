@@ -209,7 +209,7 @@ int main(int argc, char **argv)
 	FILE *fd;
 	struct stat st;
 
-	printf("evilwombat's gopro bootstrap fwcutter tool v0.05\n\n");
+	printf("evilwombat's gopro bootstrap fwcutter tool v0.06\n\n");
 	
 	if (argc != 2) {
 		printf("Usage: %s [HD2-firmware.bin from the *v312* hero2 update or HD3.03-firmware.bin for the H3 Black or HD3.11-firmware.bin for the H3+ Black]\n", argv[0]);
