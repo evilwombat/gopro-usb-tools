@@ -34,24 +34,48 @@
 #define CAMTYPE_H3PB	4
 #define CAMTYPE_H4	5
 
-/* We assume the entry point for our kernel will be 0xc3000000 */
-int gp_load_linux(libusb_device_handle *dev, const char *kernel,
-		  const char *initrd, const char *cmdline,
-		  unsigned int mach_type)
+int write_atags(libusb_device_handle *dev, const char *cmdline,
+		 unsigned int initrd_addr, unsigned int initrd_size,
+		 unsigned int tag_addr)
 {
+	int cmd_tag_len;
 	char cmdline_buf[CMDLINE_LEN];
 	int cmd_len = strlen(cmdline);
-	uint32_t initrd_base = 0xc7000000;
-	int initrd_size, cmd_tag_len, ret;
-	struct stat st;
 
-	if (initrd)
+	if (initrd_size)
 		cmd_len += 25;
 
 	if (cmd_len > CMDLINE_LEN) {
 		printf("Kernel command line too long.\n");
 		return -1;
 	}
+
+	if (initrd_size)
+		snprintf(cmdline_buf, CMDLINE_LEN, "%s initrd=0x%08x,0x%08x", cmdline, initrd_addr, initrd_size);
+	else
+		snprintf(cmdline_buf, CMDLINE_LEN, "%s", cmdline);
+
+	cmd_len = strlen(cmdline_buf);
+	cmd_tag_len = 2 + (cmd_len + 3) / 4;
+	gp_write_reg(dev, tag_addr + 0x00, 0x00000002);	// core
+	gp_write_reg(dev, tag_addr + 0x04, 0x54410001);
+	gp_write_reg(dev, tag_addr + 0x08, cmd_tag_len);
+	gp_write_reg(dev, tag_addr + 0x0c, 0x54410009);
+	gp_write_string(dev, tag_addr + 0x10, cmdline_buf);
+
+	gp_write_reg(dev, tag_addr + 0x08 + cmd_tag_len * 4, 0x00000000);
+	gp_write_reg(dev, tag_addr + 0x0c + cmd_tag_len * 4, 0x00000000);	// end of tag list
+	return 0;
+}
+
+/* We assume the entry point for our kernel will be 0xc3000000 */
+int gp_load_linux(libusb_device_handle *dev, const char *kernel,
+		  const char *initrd, const char *cmdline,
+		  unsigned int mach_type)
+{
+	uint32_t initrd_base = 0xc7000000;
+	int initrd_size, ret;
+	struct stat st;
 
 	gp_load_file(dev, kernel, 0xc3008000);
 
@@ -64,8 +88,9 @@ int gp_load_linux(libusb_device_handle *dev, const char *kernel,
 
 		initrd_size = (int) st.st_size;
 		gp_load_file(dev, initrd, 0xc7000000);
-	}
-	
+	} else
+		initrd_size = 0;
+
 	printf("Patching in some init code...\n");
 	printf("Setting ARM machine type to 0x%04x\n", mach_type);
 	gp_write_reg(dev, 0xc3000000, 0xe3a01e40 | ((mach_type >> 4) & 0xf0));	// mov r1, mach_type >> 4
@@ -75,23 +100,7 @@ int gp_load_linux(libusb_device_handle *dev, const char *kernel,
 	gp_write_reg(dev, 0xc300000C, 0xe3822020);	// orr r2, r2, 0x20	; atags at c3000020
 	gp_write_reg(dev, 0xc3000010, 0xea001ffa);	// b 0xc3008000	; kernel start
 
-	if (initrd) {
-		snprintf(cmdline_buf, CMDLINE_LEN, "%s initrd=0x%08x,0x%08x", cmdline, initrd_base, initrd_size);
-	} else
-		snprintf(cmdline_buf, CMDLINE_LEN, "%s", cmdline);
-	
-	cmd_len = strlen(cmdline_buf);
-	cmd_tag_len = 2 + (cmd_len + 3) / 4;
-	gp_write_reg(dev, 0xc3000020, 0x00000002);	// core
-	gp_write_reg(dev, 0xc3000024, 0x54410001);
-	gp_write_reg(dev, 0xc3000028, cmd_tag_len);
-	gp_write_reg(dev, 0xc300002c, 0x54410009);
-	gp_write_string(dev, 0xc3000030, cmdline_buf);
-
-	gp_write_reg(dev, 0xc3000028 + cmd_tag_len * 4 + 0x00, 0x00000000);
-  	gp_write_reg(dev, 0xc3000028 + cmd_tag_len * 4 + 0x04, 0x00000000);	// end of tag list
-
-	return 0;
+	return write_atags(dev, cmdline, initrd_base, initrd_size, 0xc3000020);
 }
 
 int gp_h3b_boot_bld(libusb_device_handle *dev, const char *hal_file, const char *bld_file)
