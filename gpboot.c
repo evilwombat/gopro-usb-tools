@@ -103,6 +103,58 @@ int gp_load_linux(libusb_device_handle *dev, const char *kernel,
 	return write_atags(dev, cmdline, initrd_base, initrd_size, 0xc3000020);
 }
 
+/*
+ * On Hero4, pboot works by interacting with the ARM11 processor.
+ * The ARM11 CPU sees that DDR begins at address 0xc0000000. However, Linux
+ * will actually be running on the Cortex A9 processor, which sees DDR at
+ * address 0. When loading the kernel, we need to load it at an address
+ * starting with 0xCxxxxxxx, because that is where the ARM11 sees DDR. But,
+ * when configuring ATAGS and the kernel entry code, we need to use A9-centric
+ * addresses (beginning with 0), because the associated code will be running on
+ * the Cortex A9.
+ *
+ */
+#define A9_ADDR(a) ((a)&0x3fffffff)
+
+int gp_hero4_load_linux(libusb_device_handle *dev, const char *kernel,
+		  const char *initrd, const char *bootstrap,
+		  const char *cmdline,
+		  unsigned int mach_type)
+{
+	uint32_t initrd_base = 0xc7000000;
+	unsigned int atag_base = 0xc0500100;
+	unsigned int zreladdr =  0xc0508000;
+	int initrd_size = 0, ret;
+	struct stat st;
+
+	gp_load_file(dev, bootstrap, 0xc0000000);
+	gp_load_file(dev, kernel, zreladdr);
+
+	if (initrd) {
+		ret = stat(initrd, &st);
+		if (ret) {
+			printf("Could not get initrd size: %d\n", ret);
+			return ret;
+		}
+
+		initrd_size = (int) st.st_size;
+		gp_load_file(dev, initrd, 0xc7000000);
+	}
+
+	/*
+	 * Configure machine type and atag information in bootstrap header.
+	 * The ARM11 CPU sees DDR at address 0xc0000000, but the A9 will see it
+	 * at address 0x00000000. Since the bootstrap code will run on the A9,
+	 * we need to mask off the upper address bits when writing the kernel and
+	 * atag addresses into the bootstrap header.
+	 */
+	gp_write_reg(dev, 0xc0000004, A9_ADDR(zreladdr));
+	gp_write_reg(dev, 0xc0000008, A9_ADDR(atag_base));
+	gp_write_reg(dev, 0xc000000c, mach_type);
+
+	return write_atags(dev, cmdline, A9_ADDR(initrd_base), initrd_size, atag_base);
+}
+
 int gp_h3b_boot_bld(libusb_device_handle *dev, const char *hal_file, const char *bld_file)
 {
 	int ret = 0;
