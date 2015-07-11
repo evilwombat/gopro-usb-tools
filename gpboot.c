@@ -241,23 +241,54 @@ void reset_cortex(libusb_device_handle *dev)
 
 void hero4_init_gpios(libusb_device_handle *dev)
 {
-	gp_write_reg(dev, 0x7000902c, 0x0fffffff);
-	gp_write_reg(dev, 0x7000a02c, 0xffffffff);
-	gp_write_reg(dev, 0x7000e02c, 0xffffffff);
-	gp_write_reg(dev, 0x7001002c, 0xffffffff);
-	gp_write_reg(dev, 0x7001102c, 0xffffffff);
+	gp_write_reg(dev, 0x70170270, 0x00000000);
+	gp_write_reg(dev, 0x70170274, 0x00000000);
+	gp_write_reg(dev, 0x70170278, 0x0000001E);
+	gp_write_reg(dev, 0x7017027c, 0x00000000);
+	gp_write_reg(dev, 0x70170280, 0x00000000);
+	gp_write_reg(dev, 0x70170284, 0x00000000);
+	gp_write_reg(dev, 0x70170288, 0x00000000);
+	gp_write_reg(dev, 0x7017028c, 0x00000000);
+	gp_write_reg(dev, 0x70170290, 0x00000000);
+	gp_write_reg(dev, 0x70170294, 0x00000000);
 
-	gp_write_reg(dev, 0x70009028, 0x0fffffff);
-	gp_write_reg(dev, 0x7000a028, 0xffffffff);
-	gp_write_reg(dev, 0x7000e028, 0xffffffff);
-	gp_write_reg(dev, 0x70010028, 0xffffffff);
-	gp_write_reg(dev, 0x70011028, 0xffffffff);
+	gp_write_reg(dev, 0x7000d080, 0x40800000);
+	gp_write_reg(dev, 0x7000d084, 0x00000200);
+	gp_write_reg(dev, 0x7000d088, 0x08000000);
+	gp_write_reg(dev, 0x7000d08c, 0x00000000);
+	gp_write_reg(dev, 0x7000d090, 0x00000000);
+	gp_write_reg(dev, 0x7000d094, 0x00000000);
+	gp_write_reg(dev, 0x7000d098, 0x00000000);
+	gp_write_reg(dev, 0x7000d09c, 0x00000000);
+	gp_write_reg(dev, 0x7000d0a0, 0x00000000);
+	gp_write_reg(dev, 0x7000d0a4, 0x00000000);
 
-	gp_write_reg(dev, 0x70009018, 0x0fffffff);
-	gp_write_reg(dev, 0x7000a018, 0xffffffff);
-	gp_write_reg(dev, 0x7000e018, 0xffffffff);
-	gp_write_reg(dev, 0x70010018, 0xffffffff);
-	gp_write_reg(dev, 0x70011018, 0xffffffff);
+	gp_write_reg(dev, 0x70009000, 0xC004CCEF);
+	gp_write_reg(dev, 0x70009004, 0xF0003800);
+	gp_write_reg(dev, 0x70009018, 0x001DC47F);
+	gp_write_reg(dev, 0x70009028, 0xFFFEFFFF);
+	gp_write_reg(dev, 0x7000902c, 0xFFFFFFFF);
+
+	gp_write_reg(dev, 0x7000a000, 0x00348DB0);
+	gp_write_reg(dev, 0x7000a004, 0x0040F180);
+	gp_write_reg(dev, 0x7000a018, 0x003C000A);
+	gp_write_reg(dev, 0x7000a028, 0xFFFFFFFF);
+	gp_write_reg(dev, 0x7000a02c, 0xFFFFFFFF);
+	gp_write_reg(dev, 0x7000e000, 0x65CD4004);
+	gp_write_reg(dev, 0x7000e004, 0xF0000000);
+	gp_write_reg(dev, 0x7000e018, 0x00CFEFEE);
+	gp_write_reg(dev, 0x7000e028, 0xFFFFF01F);
+	gp_write_reg(dev, 0x7000e02c, 0xFFFFFFFF);
+	gp_write_reg(dev, 0x70010000, 0x80000000);
+	gp_write_reg(dev, 0x70010004, 0x00000000);
+	gp_write_reg(dev, 0x70010018, 0x0000000F);
+	gp_write_reg(dev, 0x70010028, 0xFFFFFFFF);
+	gp_write_reg(dev, 0x7001002c, 0xFFFFFFFF);
+	gp_write_reg(dev, 0x70011000, 0x00000101);
+	gp_write_reg(dev, 0x70011004, 0x00000201);
+	gp_write_reg(dev, 0x70011018, 0x00000000);
+	gp_write_reg(dev, 0x70011028, 0x000007FF);
+	gp_write_reg(dev, 0x7001102c, 0xFFFFFFFF);
 }
 
 int gp_h4s_boot_linux(libusb_device_handle *dev)
