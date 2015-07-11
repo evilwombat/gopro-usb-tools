@@ -229,6 +229,75 @@ int gp_h3b_boot_linux(libusb_device_handle *dev, const char *hal_file)
 	return 0;
 }
 
+void reset_cortex(libusb_device_handle *dev)
+{
+	printf("Bringing the Cortex A9 CPUs online...");
+	gp_write_reg(dev, 0x6001d004, 0x6c);
+	gp_write_reg(dev, 0x701702dc, 0x06);
+	gp_write_reg(dev, 0x701702dc, 0x00);
+	gp_write_reg(dev, 0x6001d004, 0x0c);
+	printf(" okay, we go!\n");
+}
+
+void hero4_init_gpios(libusb_device_handle *dev)
+{
+	gp_write_reg(dev, 0x7000902c, 0x0fffffff);
+	gp_write_reg(dev, 0x7000a02c, 0xffffffff);
+	gp_write_reg(dev, 0x7000e02c, 0xffffffff);
+	gp_write_reg(dev, 0x7001002c, 0xffffffff);
+	gp_write_reg(dev, 0x7001102c, 0xffffffff);
+
+	gp_write_reg(dev, 0x70009028, 0x0fffffff);
+	gp_write_reg(dev, 0x7000a028, 0xffffffff);
+	gp_write_reg(dev, 0x7000e028, 0xffffffff);
+	gp_write_reg(dev, 0x70010028, 0xffffffff);
+	gp_write_reg(dev, 0x70011028, 0xffffffff);
+
+	gp_write_reg(dev, 0x70009018, 0x0fffffff);
+	gp_write_reg(dev, 0x7000a018, 0xffffffff);
+	gp_write_reg(dev, 0x7000e018, 0xffffffff);
+	gp_write_reg(dev, 0x70010018, 0xffffffff);
+	gp_write_reg(dev, 0x70011018, 0xffffffff);
+}
+
+int gp_h4s_boot_linux(libusb_device_handle *dev)
+{
+	/* Load our kernel and initrd, and set up atags */
+	gp_hero4_load_linux(dev,
+		      "zImage-h4s",
+		      "initrd-h4s.lzma",
+		      "evilcortex/evilcortex",
+		      "mem=500M@0x00500000 root=/dev/ram0 init=/bin/sh console=tty0 ", 4121);
+	/* Add console=ttyS3,115200n8 for a UART shell on the Herobus port. PM me. */
+
+	printf("Initializing GPIO controller\n");
+	hero4_init_gpios(dev);
+
+	/*
+	 * Remove reset from Cortex A9 CPUs. They will begin executing code at
+	 * what they think is address 0, which is actually address 0xc0000000
+	 * to the rest of the system, which is the beginning of DDR. This is
+	 * where we have loaded 'evilcortex', to perform basic Cortex A9 init
+	 * before jumping to Linux.
+	 */
+	reset_cortex(dev);
+
+	/*
+	 * Keep the ARM11 busy while the Cortex A9s execute.
+	 * We don't want to leave the USB connection open, because Linux will
+	 * want to use the USB controller too.
+	 *
+	 * It is technically possible to keep the ARM11 connected to USB, and
+	 * use it to keep an eye on what the Cortex A9s are doing. This is how
+	 * the 'evilconsole' feature works, to be formally added at a later time.
+	 */
+	gp_write_reg(dev, 0xdffffff0, 0xeafffffe);	/* branch-to-self */
+	gp_exec(dev, 0xdffffff0);
+
+	return 0;
+}
+
+
 int gp_boot_linux(libusb_device_handle *dev)
 {
 	int ret = 0;
@@ -409,6 +478,15 @@ void print_usage(const char *name)
 	printf("      %s --h3pb-linux\n", name);
 	printf("      Like the above, but for Hero3+ Black cameras\n");
 	printf("\n");
+	printf("\n\n");
+	printf("  For Hero4 Silver Cameras:\n");
+	printf("      %s --h4s-linux\n", name);
+	printf("      Boot a Linux kernel on an H4 Silver. If this works, the camera should show\n");
+	printf("      up as a USB Ethernet device and you should be able to use it to telnet\n");
+	printf("      to it at 10.9.9.1. You should see kernel messages on the rear LCD.\n");
+	printf("      WARNING: Since the Hero4 Black does not have a rear LCD and the power grid\n");
+	printf("      is likely different, using this option with a Hero4 Black is NOT RECOMMENDED!\n");
+	printf("\n");
 	printf("\n");
 }
 
@@ -441,8 +519,11 @@ int get_camera_option(int argc, char ** argv)
 
 	if (argc == 3 && strcmp(argv[1], "--h3pb-rtos") == 0)
 		return CAMTYPE_H3PB;
-	
+
 	if (argc == 2 && strcmp(argv[1], "--hero4-ddr-test") == 0)
+		return CAMTYPE_H4;
+
+	if (argc == 2 && strcmp(argv[1], "--h4s-linux") == 0)
 		return CAMTYPE_H4;
 
 	return -1;
@@ -452,7 +533,7 @@ int main(int argc, char **argv)
 {
 	int ret, i, cam_type;
 	libusb_device_handle *usb_dev;
-	printf("\nevilwombat's gopro boot thingy v0.08\n\n");
+	printf("\nevilwombat's gopro boot thingy v0.09\n\n");
 	printf("MAKE SURE YOU HAVE READ THE INSTRUCTIONS!\n");
 	printf("The author makes absolutely NO GUARANTEES of the correctness of this program\n");
 	printf("and takes absolutely NO RESPONSIBILITY OR LIABILITY for any consequences that\n");
@@ -546,11 +627,14 @@ int main(int argc, char **argv)
 	} else if (strcmp(argv[1], "--h3pb-rtos") == 0) {
 		printf("Okay, loading and booting RTOS image %s on a Hero3+ Black camera\n", argv[2]);
 		gp_h3b_boot_rtos(usb_dev,  "h3pb-v200-hal-reloc.bin", argv[2]);
+	} else if (strcmp(argv[1], "--h4s-linux") == 0) {
+		printf("Okay, loading Linux on a Hero4 Silver camera\n");
+		gp_h4s_boot_linux(usb_dev);
 	} else {
 		print_usage(argv[0]);
 		return -1;
 	}
-	
+
 	libusb_close(usb_dev);
 	return 0;
 }
