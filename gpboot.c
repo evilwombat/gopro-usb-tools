@@ -291,8 +291,35 @@ void hero4_init_gpios(libusb_device_handle *dev)
 	gp_write_reg(dev, 0x7001102c, 0xFFFFFFFF);
 }
 
+void hero4_init_nand(libusb_device_handle *dev)
+{
+	printf("Crudely initializing Hero4 NAND controller...\n");
+	gp_write_reg(dev, 0x6000a050, 0);
+
+	gp_write_reg(dev, 0x6000108c, 0);
+	gp_write_reg(dev, 0x60001150, 0);
+
+	gp_write_reg(dev, 0x6000108c, 0);
+	gp_write_reg(dev, 0x60001150, 0);
+	gp_write_reg(dev, 0x60001128, 0x20202020);
+	gp_write_reg(dev, 0x6000112c, 0x20202020);
+	gp_write_reg(dev, 0x60001130, 0x20204020);
+	gp_write_reg(dev, 0x60001134, 0x20202020);
+	gp_write_reg(dev, 0x60001138, 0x20202020);
+	gp_write_reg(dev, 0x6000113c, 0x20202020);
+
+	gp_write_reg(dev, 0x600010a0, 0x80000094);
+	gp_write_reg(dev, 0x6000115c, 0);
+	gp_write_reg(dev, 0x600010a4, 0);
+	gp_write_reg(dev, 0x60001000, 0x54);
+	gp_write_reg(dev, 0x60001120, 0x07e80170);
+}
+
 int gp_h4s_boot_linux(libusb_device_handle *dev)
 {
+	/* It's fairly likely that the user will want NAND access */
+	hero4_init_nand(dev);
+
 	/* Load our kernel and initrd, and set up atags */
 	gp_hero4_load_linux(dev,
 		      "zImage-h4s",
