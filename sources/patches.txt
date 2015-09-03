@@ -1,0 +1,15 @@
+The kernel patches have moved to a separate repository.
+
+Please see my complete Linux Kernel trees, at:
+https://github.com/evilwombat
+
+Hero2 and Hero3 (and 3+) kernel:
+https://github.com/evilwombat/gopro-linux
+
+Hero4 kernel:
+https://github.com/evilwombat/linux-hero4
+
+Kernel config files may be found in these repositories as well.
+
+Have fun!
+- evilwombat
