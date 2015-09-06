@@ -127,8 +127,15 @@ int gp_hero4_load_linux(libusb_device_handle *dev, const char *kernel,
 	int initrd_size = 0, ret;
 	struct stat st;
 
-	gp_load_file(dev, bootstrap, 0xc0000000);
-	gp_load_file(dev, kernel, zreladdr);
+	if (gp_load_file(dev, bootstrap, 0xc0000000) != 0) {
+		printf("Error: Could not load bootstrap\n");
+		return -1;
+	}
+
+	if (gp_load_file(dev, kernel, zreladdr) != 0) {
+		printf("Error: Could not load kernel: %s\n", kernel);
+		return -1;
+	}
 
 	if (initrd) {
 		ret = stat(initrd, &st);
@@ -321,11 +328,13 @@ int gp_h4s_boot_linux(libusb_device_handle *dev, const char *kernel_file)
 	hero4_init_nand(dev);
 
 	/* Load our kernel and initrd, and set up atags */
-	gp_hero4_load_linux(dev,
+	if (gp_hero4_load_linux(dev,
 		      kernel_file,
 		      "initrd-h4s.lzma",
 		      "evilcortex/evilcortex",
-		      "mem=500M@0x00500000 root=/dev/ram0 init=/bin/sh console=tty0 ", 4121);
+		      "mem=500M@0x00500000 root=/dev/ram0 init=/bin/sh console=tty0 ", 4121) != 0)
+		return -1;
+
 	/* Add console=ttyS3,115200n8 for a UART shell on the Herobus port. PM me. */
 
 	printf("Initializing GPIO controller\n");

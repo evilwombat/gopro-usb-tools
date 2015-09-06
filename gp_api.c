@@ -267,7 +267,7 @@ int gp_load_file(libusb_device_handle *dev, const char *name, uint32_t addr)
 	ret = stat(name, &st);
 
 	if (ret) {
-		printf("Could not get size of %s\n", name);
+		printf("Could not get size of %s. Does this file exist?\n", name);
 		return ret;
 	}
 
