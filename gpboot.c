@@ -315,14 +315,14 @@ void hero4_init_nand(libusb_device_handle *dev)
 	gp_write_reg(dev, 0x60001120, 0x07e80170);
 }
 
-int gp_h4s_boot_linux(libusb_device_handle *dev)
+int gp_h4s_boot_linux(libusb_device_handle *dev, const char *kernel_file)
 {
 	/* It's fairly likely that the user will want NAND access */
 	hero4_init_nand(dev);
 
 	/* Load our kernel and initrd, and set up atags */
 	gp_hero4_load_linux(dev,
-		      "zImage-h4s",
+		      kernel_file,
 		      "initrd-h4s.lzma",
 		      "evilcortex/evilcortex",
 		      "mem=500M@0x00500000 root=/dev/ram0 init=/bin/sh console=tty0 ", 4121);
@@ -538,12 +538,14 @@ void print_usage(const char *name)
 	printf("\n");
 	printf("\n\n");
 	printf("  For Hero4 Silver Cameras:\n");
-	printf("      %s --h4s-linux\n", name);
+	printf("      %s --h4s-linux [kernel file]\n", name);
 	printf("      Boot a Linux kernel on an H4 Silver. If this works, the camera should show\n");
 	printf("      up as a USB Ethernet device and you should be able to use it to telnet\n");
 	printf("      to it at 10.9.9.1. You should see kernel messages on the rear LCD.\n");
 	printf("      WARNING: Since the Hero4 Black does not have a rear LCD and the power grid\n");
-	printf("      is likely different, using this option with a Hero4 Black is NOT RECOMMENDED!\n");
+	printf("      is likely different, using this option with a Hero4 Black is NOT RECOMMENDED!\n\n");
+	printf("      It is possible to optionally specify which kernel to boot. If no kernel filename\n");
+	printf("      is specified, 'zImage-h4s' will be used.\n");
 	printf("\n");
 	printf("\n");
 }
@@ -581,7 +583,7 @@ int get_camera_option(int argc, char ** argv)
 	if (argc == 2 && strcmp(argv[1], "--hero4-ddr-test") == 0)
 		return CAMTYPE_H4;
 
-	if (argc == 2 && strcmp(argv[1], "--h4s-linux") == 0)
+	if ((argc == 2 || argc == 3) && strcmp(argv[1], "--h4s-linux") == 0)
 		return CAMTYPE_H4;
 
 	return -1;
@@ -687,7 +689,11 @@ int main(int argc, char **argv)
 		gp_h3b_boot_rtos(usb_dev,  "h3pb-v200-hal-reloc.bin", argv[2]);
 	} else if (strcmp(argv[1], "--h4s-linux") == 0) {
 		printf("Okay, loading Linux on a Hero4 Silver camera\n");
-		gp_h4s_boot_linux(usb_dev);
+		if (argc == 2) {
+			printf("No kernel filename specified - assuming 'zImage-h4s'\n");
+			gp_h4s_boot_linux(usb_dev, "zImage-h4s");
+		} else
+			gp_h4s_boot_linux(usb_dev, argv[2]);
 	} else {
 		print_usage(argv[0]);
 		return -1;
