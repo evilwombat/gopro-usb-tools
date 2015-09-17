@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2013, evilwombat
+ *  Copyright (c) 2013-2015, evilwombat
  *
  *   This program is free software: you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -104,7 +104,7 @@ int gp_load_linux(libusb_device_handle *dev, const char *kernel,
 }
 
 /*
- * On Hero4, pboot works by interacting with the ARM11 processor.
+ * On Hero4, gpboot works by interacting with the ARM11 processor.
  * The ARM11 CPU sees that DDR begins at address 0xc0000000. However, Linux
  * will actually be running on the Cortex A9 processor, which sees DDR at
  * address 0. When loading the kernel, we need to load it at an address
@@ -602,7 +602,7 @@ int main(int argc, char **argv)
 {
 	int ret, i, cam_type;
 	libusb_device_handle *usb_dev;
-	printf("\nevilwombat's gopro boot thingy v0.09\n\n");
+	printf("\nevilwombat's gopro boot thingy v0.10\n\n");
 	printf("MAKE SURE YOU HAVE READ THE INSTRUCTIONS!\n");
 	printf("The author makes absolutely NO GUARANTEES of the correctness of this program\n");
 	printf("and takes absolutely NO RESPONSIBILITY OR LIABILITY for any consequences that\n");
