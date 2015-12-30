@@ -364,6 +364,24 @@ int gp_h4s_boot_linux(libusb_device_handle *dev, const char *kernel_file)
 	return 0;
 }
 
+int gp_h4s_boot_raw(libusb_device_handle *dev, const char *file)
+{
+	if (gp_load_file(dev, file, 0xc3300000) != 0) {
+		printf("Error: Could not load %s\n", file);
+		return -1;
+	}
+
+	/* mov pc, #0x03300000  @ to jump to the image we just loaded */
+	gp_write_reg(dev, 0xc0000000, 0xe3a0f7cc);
+
+	reset_cortex(dev);
+
+	/* Tell the ARM11 to release USB, but give it something to keep it busy */
+	gp_write_reg(dev, 0xdffffff0, 0xeafffffe);	/* branch-to-self */
+	gp_exec(dev, 0xdffffff0);
+
+	return 0;
+}
 
 int gp_boot_linux(libusb_device_handle *dev)
 {
@@ -592,6 +610,9 @@ int get_camera_option(int argc, char ** argv)
 	if (argc == 2 && strcmp(argv[1], "--hero4-ddr-test") == 0)
 		return CAMTYPE_H4;
 
+	if (argc == 3 && strcmp(argv[1], "--h4-raw") == 0)
+		return CAMTYPE_H4;
+
 	if ((argc == 2 || argc == 3) && strcmp(argv[1], "--h4s-linux") == 0)
 		return CAMTYPE_H4;
 
@@ -703,6 +724,9 @@ int main(int argc, char **argv)
 			gp_h4s_boot_linux(usb_dev, "zImage-h4s");
 		} else
 			gp_h4s_boot_linux(usb_dev, argv[2]);
+	} else if (strcmp(argv[1], "--h4-raw") == 0) {
+		printf("Okay, raw-booting a Hero4 camera using %s\n", argv[2]);
+		gp_h4s_boot_raw(usb_dev, argv[2]);
 	} else {
 		print_usage(argv[0]);
 		return -1;
