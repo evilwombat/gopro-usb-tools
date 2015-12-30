@@ -24,6 +24,7 @@
 #include <sys/stat.h>
 #include <unistd.h>
 
+#include "gp_lcd.h"
 #include "gp_api.h"
 
 #define CMDLINE_LEN 256
@@ -329,6 +330,11 @@ int gp_h4s_boot_linux(libusb_device_handle *dev, const char *kernel_file, const 
 {
 	/* It's fairly likely that the user will want NAND access */
 	hero4_init_nand(dev);
+
+	/* We'll do this again later, since the logo code reconfigures GPIOs too */
+	printf("Initializing peripherals\n");
+	hero4_init_gpios(dev);
+	st7585_show_logo(dev);
 
 	/* Load our kernel and initrd, and set up atags */
 	if (gp_hero4_load_linux(dev,
