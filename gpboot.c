@@ -35,6 +35,7 @@
 #define CAMTYPE_H4	5
 
 #define H4S_LINUX_CMDLINE "mem=500M@0x00500000 root=/dev/ram0 init=/bin/sh console=tty0 "
+#define H4S_LINUX_AUTOREFLASH_CMDLINE "mem=500M@0x00500000 root=/dev/ram0 init=/bin/sh console=tty0 mtdparts=ambarella_nand:507008k(firmware_raw),-(calibration_data)ro autoreflash "
 
 int write_atags(libusb_device_handle *dev, const char *cmdline,
 		 unsigned int initrd_addr, unsigned int initrd_size,
@@ -618,6 +619,9 @@ int get_camera_option(int argc, char ** argv)
 	if ((argc == 2 || argc == 3) && strcmp(argv[1], "--h4s-linux") == 0)
 		return CAMTYPE_H4;
 
+	if (argc == 2 && strcmp(argv[1], "--h4-recovery") == 0)
+		return CAMTYPE_H4;
+
 	return -1;
 }
 
@@ -726,6 +730,9 @@ int main(int argc, char **argv)
 			gp_h4s_boot_linux(usb_dev, "zImage-h4s", H4S_LINUX_CMDLINE);
 		} else
 			gp_h4s_boot_linux(usb_dev, argv[2], H4S_LINUX_CMDLINE);
+	} else if (strcmp(argv[1], "--h4-recovery") == 0) {
+		printf("Okay, attempting to reflash a Hero4 camera\n");
+		gp_h4s_boot_linux(usb_dev, "zImage-h4-recovery", H4S_LINUX_AUTOREFLASH_CMDLINE);
 	} else if (strcmp(argv[1], "--h4-raw") == 0) {
 		printf("Okay, raw-booting a Hero4 camera using %s\n", argv[2]);
 		gp_h4s_boot_raw(usb_dev, argv[2]);
