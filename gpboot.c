@@ -34,6 +34,8 @@
 #define CAMTYPE_H3PB	4
 #define CAMTYPE_H4	5
 
+#define H4S_LINUX_CMDLINE "mem=500M@0x00500000 root=/dev/ram0 init=/bin/sh console=tty0 "
+
 int write_atags(libusb_device_handle *dev, const char *cmdline,
 		 unsigned int initrd_addr, unsigned int initrd_size,
 		 unsigned int tag_addr)
@@ -322,7 +324,7 @@ void hero4_init_nand(libusb_device_handle *dev)
 	gp_write_reg(dev, 0x60001120, 0x07e80170);
 }
 
-int gp_h4s_boot_linux(libusb_device_handle *dev, const char *kernel_file)
+int gp_h4s_boot_linux(libusb_device_handle *dev, const char *kernel_file, const char *cmdline)
 {
 	/* It's fairly likely that the user will want NAND access */
 	hero4_init_nand(dev);
@@ -332,7 +334,7 @@ int gp_h4s_boot_linux(libusb_device_handle *dev, const char *kernel_file)
 		      kernel_file,
 		      "initrd-h4s.lzma",
 		      "evilcortex/evilcortex",
-		      "mem=500M@0x00500000 root=/dev/ram0 init=/bin/sh console=tty0 ", 4121) != 0)
+		      cmdline, 4121) != 0)
 		return -1;
 
 	/* Add console=ttyS3,115200n8 for a UART shell on the Herobus port. PM me. */
@@ -721,9 +723,9 @@ int main(int argc, char **argv)
 		printf("Okay, loading Linux on a Hero4 Silver camera\n");
 		if (argc == 2) {
 			printf("No kernel filename specified - assuming 'zImage-h4s'\n");
-			gp_h4s_boot_linux(usb_dev, "zImage-h4s");
+			gp_h4s_boot_linux(usb_dev, "zImage-h4s", H4S_LINUX_CMDLINE);
 		} else
-			gp_h4s_boot_linux(usb_dev, argv[2]);
+			gp_h4s_boot_linux(usb_dev, argv[2], H4S_LINUX_CMDLINE);
 	} else if (strcmp(argv[1], "--h4-raw") == 0) {
 		printf("Okay, raw-booting a Hero4 camera using %s\n", argv[2]);
 		gp_h4s_boot_raw(usb_dev, argv[2]);
