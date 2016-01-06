@@ -420,7 +420,7 @@ int gp_boot_linux(libusb_device_handle *dev)
 		printf("Exec failed: %d\n", ret);
 		return ret;
 	}
-	
+
 	return 0;
 }
 
@@ -464,7 +464,7 @@ int gp_boot_rtos(libusb_device_handle *dev, const char *rtos_file)
 		printf("Could not load relocate.bin\n");
 		return -1;
 	}
-	
+
 	ret = gp_load_file(dev, "v312-hal-reloc.bin", 0xc8000000);
 	if (ret) {
 		printf("Could not load v312-hal-reloc.bin - did you run prepare-boostrap?\n");
@@ -481,7 +481,7 @@ int gp_boot_rtos(libusb_device_handle *dev, const char *rtos_file)
 
 	printf("Patching in a jump to our relocator..\n");
 	gp_write_reg(dev, 0xc00024c4, 0xe3a0f4c7);          /* Jump to relocator */
-	
+
 	printf("Okay, here goes nothing...\n");
 	ret = gp_exec(dev, 0xc0000000);
 	if (ret) {
@@ -583,6 +583,23 @@ void print_usage(const char *name)
 	printf("      It is possible to optionally specify which kernel to boot. If no kernel filename\n");
 	printf("      is specified, 'zImage-h4s' will be used.\n");
 	printf("\n");
+	printf("\n\n");
+	printf("  For Hero4 Black / Silver Cameras:\n");
+	printf("      %s --h4-recovery\n", name);
+	printf("      Attempt to recover a soft-bricked Hero4 Black / Silver camera by booting\n");
+	printf("      Linux on it and reprogramming the NAND with stock firmware. You should\n");
+	printf("      copy the 'h4-recovery.tgz' file onto a blank memory card and leave it in\n");
+	printf("      the camera before running this command. The memory card needs to have been\n");
+	printf("      formatted with the FAT filesystem (not exFAT!) for this to work. Cards\n");
+	printf("      less than 64GB in size will unusually work.\n");
+	printf("      After running this command, watch the front camera display for messages.\n");
+	printf("      When flashing is complete, unplug USB from the camera, remove battery,\n");
+	printf("      wait 10 seconds, put battery back in, wait another 10 seconds, and turn\n");
+	printf("      the camera on. It should boot, if you are lucky.\n");
+	printf("      If this works, let the camera sit at the video screen for TWO MINUTES,\n");
+	printf("      then pull the battery. After this is done, the camera should be ready\n");
+	printf("      for normal use. Good luck.\n");
+	printf("\n");
 	printf("\n");
 }
 
@@ -635,7 +652,7 @@ int main(int argc, char **argv)
 {
 	int ret, i, cam_type;
 	libusb_device_handle *usb_dev;
-	printf("\nevilwombat's gopro boot thingy v0.10\n\n");
+	printf("\nevilwombat's gopro boot thingy v0.11\n\n");
 	printf("MAKE SURE YOU HAVE READ THE INSTRUCTIONS!\n");
 	printf("The author makes absolutely NO GUARANTEES of the correctness of this program\n");
 	printf("and takes absolutely NO RESPONSIBILITY OR LIABILITY for any consequences that\n");
@@ -646,12 +663,12 @@ int main(int argc, char **argv)
 	printf("\n");
 
 	cam_type = get_camera_option(argc, argv);
-	
+
 	if (cam_type == CAMTYPE_UNKNOWN) {
 		print_usage(argv[0]);
 		return -1;
 	}
-	
+
 	printf("Initializing libusb\n");
 	ret = libusb_init(NULL);
 
@@ -666,14 +683,14 @@ int main(int argc, char **argv)
 		usb_dev = libusb_open_device_with_vid_pid(NULL, 0x4255, 0x0009);
 	else
 		usb_dev = libusb_open_device_with_vid_pid(NULL, 0x4255, 0x0003);
-	
+
 	if (!usb_dev) {
 		printf("Could not find the camera USB device.\n");
 		printf(" - Is the camera plugged in? Is it in USB command mode?\n");
 		printf(" - If you are using Linux, do you have permissions to access the USB device?\n");
 		return -1;
 	}
-	
+
 	ret = gp_init_interface(usb_dev);
 	if (ret) {
 		printf("Could not initialize USB interface: %d\n", ret);
