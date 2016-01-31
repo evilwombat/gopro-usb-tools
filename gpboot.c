@@ -35,6 +35,9 @@
 #define CAMTYPE_H3PB	4
 #define CAMTYPE_H4	5
 
+#define H3B_LINUX_CMDLINE "mem=200M@0xc3000000 console=tty0 root=/dev/ram0 init=/bin/sh "
+#define H3PB_LINUX_AUTOREFLASH_CMDLINE "mem=200M@0xc3000000 console=tty0 root=/dev/ram0 init=/init mtdparts=ambnand:522624k(firmware_raw),1408k(calibration_data)ro autoreflash"
+
 #define H4S_LINUX_CMDLINE "mem=500M@0x00500000 root=/dev/ram0 init=/bin/sh console=tty0 "
 #define H4S_LINUX_AUTOREFLASH_CMDLINE "mem=500M@0x00500000 root=/dev/ram0 init=/bin/sh console=tty0 mtdparts=ambarella_nand:507008k(firmware_raw),-(calibration_data)ro autoreflash "
 
@@ -199,7 +202,7 @@ int gp_h3b_boot_bld(libusb_device_handle *dev, const char *hal_file, const char 
 	return 0;
 }
 
-int gp_h3b_boot_linux(libusb_device_handle *dev, const char *hal_file)
+int gp_h3b_boot_linux(libusb_device_handle *dev, const char *kernel, const char *hal_file, const char *cmdline)
 {
 	int ret = 0;
 	unsigned int temp;
@@ -226,8 +229,7 @@ int gp_h3b_boot_linux(libusb_device_handle *dev, const char *hal_file)
 	temp &= ~0x0A;
 	gp_write_reg(dev, 0x6000a050, temp);
 
-	gp_load_linux(dev, "zImage-a7", "initrd.lzma",
-		      "mem=200M@0xc3000000 console=tty0 console=ttyS0,115200n8 root=/dev/ram0 init=/bin/sh ", 0xe11);
+	gp_load_linux(dev, kernel, "initrd.lzma", cmdline, 0xe11);
 
 	printf("Okay, here goes nothing...\n");
 
@@ -630,6 +632,9 @@ int get_camera_option(int argc, char ** argv)
 	if (argc == 2 && strcmp(argv[1], "--h3pb-linux") == 0)
 		return CAMTYPE_H3PB;
 
+	if (argc == 2 && strcmp(argv[1], "--h3pb-recovery") == 0)
+		return CAMTYPE_H3PB;
+
 	if (argc == 3 && strcmp(argv[1], "--h3pb-rtos") == 0)
 		return CAMTYPE_H3PB;
 
@@ -733,7 +738,7 @@ int main(int argc, char **argv)
 		gp_boot_rtos(usb_dev, argv[2]);
 	} else if (strcmp(argv[1], "--h3b-linux") == 0) {
 		printf("Okay, loading and booting Linux on a Hero3 Black camera\n");
-		gp_h3b_boot_linux(usb_dev, "h3b-v300-hal-reloc.bin");
+		gp_h3b_boot_linux(usb_dev, "zImage-a7", "h3b-v300-hal-reloc.bin", H3B_LINUX_CMDLINE);
 	} else if (strcmp(argv[1], "--h3b-rtos") == 0) {
 		printf("Okay, loading and booting RTOS image %s on a Hero3 Black camera\n", argv[2]);
 		gp_h3b_boot_rtos(usb_dev,  "h3b-v300-hal-reloc.bin", argv[2]);
@@ -742,7 +747,10 @@ int main(int argc, char **argv)
 		gp_h3b_boot_bld(usb_dev,  "h3b-v300-hal-reloc.bin", argv[2]);
 	} else if (strcmp(argv[1], "--h3pb-linux") == 0) {
 		printf("Okay, loading and booting Linux on a Hero3+ Black camera\n");
-		gp_h3b_boot_linux(usb_dev, "h3pb-v200-hal-reloc.bin");
+		gp_h3b_boot_linux(usb_dev, "zImage-a7", "h3pb-v200-hal-reloc.bin", H3B_LINUX_CMDLINE);
+	} else if (strcmp(argv[1], "--h3pb-recovery") == 0) {
+		printf("Okay, attempting to reflash a Hero3+ Black camera\n");
+		gp_h3b_boot_linux(usb_dev, "zImage-h3pb-recovery", "h3pb-v200-hal-reloc.bin", H3PB_LINUX_AUTOREFLASH_CMDLINE);
 	} else if (strcmp(argv[1], "--h3pb-rtos") == 0) {
 		printf("Okay, loading and booting RTOS image %s on a Hero3+ Black camera\n", argv[2]);
 		gp_h3b_boot_rtos(usb_dev,  "h3pb-v200-hal-reloc.bin", argv[2]);
