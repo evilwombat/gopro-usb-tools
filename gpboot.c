@@ -586,6 +586,21 @@ void print_usage(const char *name)
 	printf("      is specified, 'zImage-h4s' will be used.\n");
 	printf("\n");
 	printf("\n\n");
+	printf("  For Hero3+ Black Cameras:\n");
+	printf("      %s --h3pb-recovery\n", name);
+	printf("      Attempt to recover a soft-bricked Hero3 Plus Black camera by booting\n");
+	printf("      Linux on it and reprogramming the NAND with stock firmware. You should\n");
+	printf("      copy the 'h3pb-recovery.tgz' file onto a blank memory card and leave it in\n");
+	printf("      the camera before running this command. The memory card needs to have been\n");
+	printf("      formatted with the FAT filesystem (not exFAT!) for this to work. Cards\n");
+	printf("      less than 64GB in size will unusually work.\n");
+	printf("      After running this command, watch the front camera display for messages.\n");
+	printf("      When flashing is complete, unplug USB from the camera, remove battery,\n");
+	printf("      wait 10 seconds, put battery back in, wait another 10 seconds, and turn\n");
+	printf("      the camera on. It should boot, if you are lucky.\n");
+	printf("      If this works, the camera might say 'NO SD' for a few seconds, briefly go\n");
+	printf("      into update mode, and then reboot. Good luck!\n");
+	printf("\n\n");
 	printf("  For Hero4 Black / Silver Cameras:\n");
 	printf("      %s --h4-recovery\n", name);
 	printf("      Attempt to recover a soft-bricked Hero4 Black / Silver camera by booting\n");
@@ -598,9 +613,8 @@ void print_usage(const char *name)
 	printf("      When flashing is complete, unplug USB from the camera, remove battery,\n");
 	printf("      wait 10 seconds, put battery back in, wait another 10 seconds, and turn\n");
 	printf("      the camera on. It should boot, if you are lucky.\n");
-	printf("      If this works, let the camera sit at the video screen for TWO MINUTES,\n");
-	printf("      then pull the battery. After this is done, the camera should be ready\n");
-	printf("      for normal use. Good luck.\n");
+	printf("      If this works, the camera should briefly go into update mode, and then\n");
+	printf("      reboot. Good luck!\n");
 	printf("\n");
 	printf("\n");
 }
@@ -657,7 +671,7 @@ int main(int argc, char **argv)
 {
 	int ret, i, cam_type;
 	libusb_device_handle *usb_dev;
-	printf("\nevilwombat's gopro boot thingy v0.11\n\n");
+	printf("\nevilwombat's gopro boot thingy v0.12\n\n");
 	printf("MAKE SURE YOU HAVE READ THE INSTRUCTIONS!\n");
 	printf("The author makes absolutely NO GUARANTEES of the correctness of this program\n");
 	printf("and takes absolutely NO RESPONSIBILITY OR LIABILITY for any consequences that\n");
