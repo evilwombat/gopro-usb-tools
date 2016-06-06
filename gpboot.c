@@ -36,7 +36,7 @@
 #define CAMTYPE_H4	5
 
 #define H3B_LINUX_CMDLINE "mem=200M@0xc3000000 console=tty0 root=/dev/ram0 init=/bin/sh "
-#define H3PB_LINUX_AUTOREFLASH_CMDLINE "mem=200M@0xc3000000 console=tty0 root=/dev/ram0 init=/init mtdparts=ambnand:522624k(firmware_raw),1408k(calibration_data)ro autoreflash"
+#define H3PB_LINUX_AUTOREFLASH_CMDLINE "mem=200M@0xc3000000 console=tty0 root=/dev/ram0 init=/init mtdparts=ambnand:522624k(firmware_raw),1408k(calibration_data)ro,-(extra_stuff) autoreflash"
 
 #define H4S_LINUX_CMDLINE "mem=500M@0x00500000 root=/dev/ram0 init=/bin/sh console=tty0 "
 #define H4S_LINUX_AUTOREFLASH_CMDLINE "mem=500M@0x00500000 root=/dev/ram0 init=/bin/sh console=tty0 mtdparts=ambarella_nand:507008k(firmware_raw),-(calibration_data)ro autoreflash "
