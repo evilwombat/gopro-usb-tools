@@ -693,16 +693,30 @@ int get_camera_option(int argc, char ** argv)
 
 void hero5_init_gpios(libusb_device_handle *dev)
 {
-	gp_write_reg(dev, 0x70170270, 0x00000000);
-	gp_write_reg(dev, 0x70170274, 0x00000000);
-	gp_write_reg(dev, 0x70170278, 0x0000001E);
-	gp_write_reg(dev, 0x7017027c, 0x00000000);
-	gp_write_reg(dev, 0x70170280, 0x00000000);
-	gp_write_reg(dev, 0x70170284, 0x00000000);
+	gp_write_reg(dev, 0x70170270, 0x0F22000C);
+	gp_write_reg(dev, 0x70170274, 0xFF800047);
+	gp_write_reg(dev, 0x70170278, 0x00300019);
+	gp_write_reg(dev, 0x7017027c, 0x0FFFFFFF);
+	gp_write_reg(dev, 0x70170280, 0xFFFFF8FE);
+	gp_write_reg(dev, 0x70170284, 0x000000E0);
 	gp_write_reg(dev, 0x70170288, 0x00000000);
-	gp_write_reg(dev, 0x7017028c, 0x00000000);
+	gp_write_reg(dev, 0x7017028c, 0x03000026);
 	gp_write_reg(dev, 0x70170290, 0x00000000);
 	gp_write_reg(dev, 0x70170294, 0x00000000);
+	gp_write_reg(dev, 0x70170298, 0x3FFFFFFF);
+	gp_write_reg(dev, 0x7017029c, 0x00003FC0);
+	gp_write_reg(dev, 0x70170314, 0x00000000);
+	gp_write_reg(dev, 0x70170318, 0x00000004);
+	gp_write_reg(dev, 0x7017031c, 0x00000002);
+	gp_write_reg(dev, 0x70170320, 0x00000000);
+	gp_write_reg(dev, 0x70170324, 0x00000000);
+	gp_write_reg(dev, 0x70170328, 0x0000000C);
+	gp_write_reg(dev, 0x7017032c, 0x09100000);
+	gp_write_reg(dev, 0x70170330, 0x00770000);
+	gp_write_reg(dev, 0x70170204, 0x00000003);
+	gp_write_reg(dev, 0x70170208, 0x00000003);
+	gp_write_reg(dev, 0x7017020c, 0x00000003);
+	gp_write_reg(dev, 0x70170210, 0x00000003);
 
 	gp_write_reg(dev, 0x7000d080, 0x40800000);
 	gp_write_reg(dev, 0x7000d084, 0x00000200);
