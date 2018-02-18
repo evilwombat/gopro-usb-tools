@@ -5,13 +5,17 @@ CFLAGS=-mcpu=cortex-a9
 
 LDFLAGS=$(CFLAGS)
 
-TARGETS=evilcortex
+TARGETS=evilcortex evilcortex-of
 
 all : $(TARGETS)
 
 evilcortex : evilcortex.S
 	$(CC) $(CFLAGS) -c -o evilcortex.o evilcortex.S
 	$(OBJCOPY) -O binary evilcortex.o evilcortex
+
+evilcortex-of : evilcortex-of.S
+	$(CC) $(CFLAGS) -c -o evilcortex-of.o evilcortex-of.S
+	$(OBJCOPY) -O binary evilcortex-of.o evilcortex-of
 
 clean :
 	rm -rf *.o $(TARGETS)
