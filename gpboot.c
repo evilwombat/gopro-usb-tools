@@ -34,6 +34,7 @@
 #define CAMTYPE_H3B	3
 #define CAMTYPE_H3PB	4
 #define CAMTYPE_H4	5
+#define CAMTYPE_H5	6
 
 #define H3B_LINUX_CMDLINE "mem=200M@0xc3000000 console=tty0 root=/dev/ram0 init=/bin/sh "
 #define H3PB_LINUX_AUTOREFLASH_CMDLINE "mem=200M@0xc3000000 console=tty0 root=/dev/ram0 init=/init mtdparts=ambnand:522624k(firmware_raw),1408k(calibration_data)ro,-(extra_stuff) autoreflash"
@@ -615,6 +616,23 @@ void print_usage(const char *name)
 	printf("      the camera on. It should boot, if you are lucky.\n");
 	printf("      If this works, the camera should briefly go into update mode, and then\n");
 	printf("      reboot. Good luck!\n");
+	printf("\n\n");
+	printf("  For Hero5 Black Cameras:\n");
+	printf("      %s --h5-linux\n", name);
+	printf("      Boot Linux on a Hero5 Silver camera. You can telnet in at 10.9.9.1.\n\n");
+	printf("      %s --h5-recovery\n", name);
+	printf("      Attempt to recover a soft-bricked Hero5 Black camera by booting\n");
+	printf("      Linux on it and reprogramming the NAND with stock firmware. You should\n");
+	printf("      copy the 'h5-recovery.tgz' file onto a blank memory card and leave it in\n");
+	printf("      the camera before running this command. The memory card needs to have been\n");
+	printf("      formatted with the FAT filesystem (not exFAT!) for this to work. Cards\n");
+	printf("      less than 64GB in size will unusually work.\n");
+	printf("      After running this command, watch the front camera display for messages.\n");
+	printf("      When flashing is complete, unplug USB from the camera, remove battery,\n");
+	printf("      wait 10 seconds, put battery back in, wait another 10 seconds, and turn\n");
+	printf("      the camera on. It should boot, if you are lucky.\n");
+	printf("      If this works, the camera should briefly go into update mode, and then\n");
+	printf("      reboot. Good luck!\n");
 	printf("\n");
 	printf("\n");
 }
@@ -664,7 +682,78 @@ int get_camera_option(int argc, char ** argv)
 	if (argc == 2 && strcmp(argv[1], "--h4-recovery") == 0)
 		return CAMTYPE_H4;
 
+	if (argc == 2 && strcmp(argv[1], "--h5-linux") == 0)
+		return CAMTYPE_H5;
+
+	if (argc == 2 && strcmp(argv[1], "--h5-recovery") == 0)
+		return CAMTYPE_H5;
+
 	return -1;
+}
+
+void hero5_init_gpios(libusb_device_handle *dev)
+{
+	gp_write_reg(dev, 0x70170270, 0x00000000);
+	gp_write_reg(dev, 0x70170274, 0x00000000);
+	gp_write_reg(dev, 0x70170278, 0x0000001E);
+	gp_write_reg(dev, 0x7017027c, 0x00000000);
+	gp_write_reg(dev, 0x70170280, 0x00000000);
+	gp_write_reg(dev, 0x70170284, 0x00000000);
+	gp_write_reg(dev, 0x70170288, 0x00000000);
+	gp_write_reg(dev, 0x7017028c, 0x00000000);
+	gp_write_reg(dev, 0x70170290, 0x00000000);
+	gp_write_reg(dev, 0x70170294, 0x00000000);
+
+	gp_write_reg(dev, 0x7000d080, 0x40800000);
+	gp_write_reg(dev, 0x7000d084, 0x00000200);
+	gp_write_reg(dev, 0x7000d088, 0x08000000);
+	gp_write_reg(dev, 0x7000d08c, 0x00000000);
+	gp_write_reg(dev, 0x7000d090, 0x00000000);
+	gp_write_reg(dev, 0x7000d094, 0x00000000);
+	gp_write_reg(dev, 0x7000d098, 0x00000000);
+	gp_write_reg(dev, 0x7000d09c, 0x00000000);
+	gp_write_reg(dev, 0x7000d0a0, 0x00000000);
+	gp_write_reg(dev, 0x7000d0a4, 0x00000000);
+
+	gp_write_reg(dev, 0x70009004, 0x00403860);
+	gp_write_reg(dev, 0x70009018, 0xFF3FC49F);
+	gp_write_reg(dev, 0x70009028, 0x0FE23B60);
+	gp_write_reg(dev, 0x70009000, 0x00400B60);
+	gp_write_reg(dev, 0x7000902c, 0xFFFFFFFF);
+
+	gp_write_reg(dev, 0x7000a000, 0x00006180);
+	gp_write_reg(dev, 0x7000a004, 0x00003380);
+	gp_write_reg(dev, 0x7000a018, 0xFFBC007B);
+	gp_write_reg(dev, 0x7000a028, 0xFFC3FFC7);
+	gp_write_reg(dev, 0x7000a02c, 0xFFFFFFFF);
+
+	gp_write_reg(dev, 0x7000e004, 0x08001010);
+	gp_write_reg(dev, 0x7000e018, 0xFFFBEFEF);
+	gp_write_reg(dev, 0x7000e028, 0x00341011);
+	gp_write_reg(dev, 0x7000e000, 0x00001010);
+	gp_write_reg(dev, 0x7000e02c, 0xFFFFFFFF);
+
+	gp_write_reg(dev, 0x70010000, 0x00000000);
+	gp_write_reg(dev, 0x70010004, 0x00000000);
+	gp_write_reg(dev, 0x70010018, 0xFFFFFFC3);
+	gp_write_reg(dev, 0x70010028, 0x0FFFFFFF);
+	gp_write_reg(dev, 0x7001002c, 0xFFFFFFFF);
+
+	gp_write_reg(dev, 0x70011000, 0x00000001);
+	gp_write_reg(dev, 0x70011004, 0x00000201);
+	gp_write_reg(dev, 0x70011018, 0xFFFFF8FE);
+	gp_write_reg(dev, 0x70011028, 0xFFFFFFFF);
+	gp_write_reg(dev, 0x7001102c, 0xFFFFFFFF);
+}
+
+void gp_h5_boot_linux(struct libusb_device_handle *dev, const char *dtb)
+{
+	hero5_init_gpios(dev);
+	gp_load_file(dev, "initrd-h5.lzma", 0x00a00000);
+	gp_load_file(dev, "evilcortex/evilcortex-of", 0x00000000);
+	gp_load_file(dev, dtb, 0x00f00000);
+	gp_load_file(dev, "zImage-h5", 0x00208000);
+	gp_exec(dev, 0x00000000);
 }
 
 int main(int argc, char **argv)
@@ -672,7 +761,7 @@ int main(int argc, char **argv)
 	int ret, i, cam_type;
 	unsigned int ddr_base = 0xc0000000;
 	libusb_device_handle *usb_dev;
-	printf("\nevilwombat's gopro boot thingy v0.12\n\n");
+	printf("\nevilwombat's gopro boot thingy v0.14\n\n");
 	printf("MAKE SURE YOU HAVE READ THE INSTRUCTIONS!\n");
 	printf("The author makes absolutely NO GUARANTEES of the correctness of this program\n");
 	printf("and takes absolutely NO RESPONSIBILITY OR LIABILITY for any consequences that\n");
@@ -701,6 +790,8 @@ int main(int argc, char **argv)
 		usb_dev = libusb_open_device_with_vid_pid(NULL, 0x4255, 0x0001);
 	else if (cam_type == CAMTYPE_H4)
 		usb_dev = libusb_open_device_with_vid_pid(NULL, 0x4255, 0x0009);
+	else if (cam_type == CAMTYPE_H5)
+		usb_dev = libusb_open_device_with_vid_pid(NULL, 0x4255, 0x000c);
 	else
 		usb_dev = libusb_open_device_with_vid_pid(NULL, 0x4255, 0x0003);
 
@@ -730,13 +821,17 @@ int main(int argc, char **argv)
 	if (cam_type == CAMTYPE_H4)
 		ret = gp_init_ddr(usb_dev, hero4_ddr_init_seq);
 
+	if (cam_type == CAMTYPE_H5)
+		ret = gp_init_ddr(usb_dev, hero5_ddr_init_seq);
 
 	if (ret) {
 		printf("Could not initialize DDR: %d\n", ret);
 		return -1;
 	}
 
-	ret = gp_test_ddr(usb_dev);
+	if (cam_type == CAMTYPE_H5)
+		ddr_base = 0x00000000;
+
 	ret = gp_test_ddr(usb_dev, ddr_base);
 	if (ret) {
 		printf("DDR test failed: %d\n", ret);
@@ -817,6 +912,18 @@ int main(int argc, char **argv)
 	if (strcmp(argv[1], "--h4-raw") == 0) {
 		printf("Okay, raw-booting a Hero4 camera using %s\n", argv[2]);
 		gp_h4s_boot_raw(usb_dev, argv[2]);
+		return 0;
+	}
+
+	if (strcmp(argv[1], "--h5-linux") == 0) {
+		printf("Okay, booting Linux on a Hero5 Black camera\n");
+		gp_h5_boot_linux(usb_dev, "dtb/hero5-linux.dtb");
+		return 0;
+	}
+
+	if (strcmp(argv[1], "--h5-recovery") == 0) {
+		printf("Okay, attempting to reflash a Hero5 Black camera\n");
+		gp_h5_boot_linux(usb_dev, "dtb/hero5-recovery.dtb");
 		return 0;
 	}
 
