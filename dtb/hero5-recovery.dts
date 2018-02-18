@@ -1,0 +1,16 @@
+/*
+ * Copyright (C) 2016 evilwombat
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License version 2 as
+ * published by the Free Software Foundation.
+ */
+
+/dts-v1/;
+/include/ "hero5.dtsi"
+
+/ {
+	chosen {
+		bootargs = "console=tty0 initrd=0x00a00000,0x97CF7 autoreflash ";
+	};
+};

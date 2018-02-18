@@ -1,5 +1,7 @@
 /*
  * Copyright (C) 2013 Ambarella,Inc. - http://www.ambarella.com/
+ * Copyright (C) 2016 evilwombat
+ *
  * Author: Cao Rongrong <rrcao@ambarella.com>
  *
  * This program is free software; you can redistribute it and/or modify
@@ -7,9 +9,9 @@
  * published by the Free Software Foundation.
  */
 
-/include/ "skeleton.dtsi"
-
 / {
+	#address-cells = <1>;
+	#size-cells = <1>;
 	compatible = "ambarella,s2e";
 	interrupt-parent = <&intc>;
 
@@ -26,11 +28,9 @@
 		ethernet0 = &mac0;
 	};
 
-	/* the memory node will be overwritten in Amboot,
-	 * here is just the default value. */
 	memory {
 		device_type = "memory";
-		reg = <0x00200000 0x07e00000>; /* 126M */
+		reg = <0x00200000 0x10000000>;
 	};
 
 	chosen {
@@ -99,7 +99,7 @@
 			compatible = "ambarella,uart";
 			reg = <0x70014000 0x100>;
 			interrupts = <91 0x04>;
-			status = "disabled";
+			status = "ok";
 			amb,msr-used;	/* use Modem Status Register */
 			/* amb,tx-fifo-fix; */
 		};
@@ -108,7 +108,7 @@
 			compatible = "ambarella,uart";
 			reg = <0x70015000 0x100>;
 			interrupts = <92 0x04>;
-			status = "disabled";
+			status = "ok";
 			amb,msr-used;	/* use Modem Status Register */
 			/* amb,tx-fifo-fix; */
 		};
@@ -118,13 +118,13 @@
 			#address-cells = <1>;
 			#size-cells = <0>;
 			reg = <0x70003000 0x1000>;
-			/* interrupts = <19 0x04>; */
+			interrupts = <19 0x04>;
 			pinctrl-names = "default";
 			pinctrl-0 = <&i2c0_pins>;
 			clock-frequency = <100000>;
 			amb,i2c-class = <0x81>;
 			amb,bulk-num = <60>;
-			status = "disabled";
+			status = "ok";
 	        };
 
 		i2c1: i2c@70007000 {
@@ -132,13 +132,13 @@
 			#address-cells = <1>;
 			#size-cells = <0>;
 			reg = <0x70007000 0x1000>;
-			/* interrupts = <36 0x04>; */
+			interrupts = <36 0x04>;
 			pinctrl-names = "default";
 			pinctrl-0 = <&i2c1_pins>;
 			clock-frequency = <100000>;
 			amb,i2c-class = <0x08>;
 			amb,bulk-num = <60>;
-			status = "disabled";
+			status = "ok";
 	        };
 
 		i2c2: i2c@70013000 {
@@ -146,13 +146,79 @@
 			#address-cells = <1>;
 			#size-cells = <0>;
 			reg = <0x70013000 0x1000>;
-			/* interrupts = <90 0x04>; */
+			interrupts = <90 0x04>;
 			pinctrl-names = "default";
 			pinctrl-0 = <&i2c2_pins>;
 			clock-frequency = <100000>;
 			amb,i2c-class = <0x81>;
 			amb,bulk-num = <60>;
-			status = "disabled";
+			status = "ok";
+
+			pmic-dummy@40 {
+				compatible = "linux,i2c-reg-dummy";
+				reg = <0x40>;
+				linux,reg-data = /bits/8 <
+					0x00 0x30  0x01 0xd0  0x02 0xf8  0x03 0x3c
+					0x04 0x9c  0x05 0x9a  0x06 0xcc  0x07 0x00
+					0x08 0x73  0x09 0x73  0x0a 0x7f  0x0b 0x0c
+					0x0c 0x0a  0x0d 0x00  0x0e 0x81  0x0f 0x00
+					0x10 0x4f  0x11 0x3c  0x12 0x00  0x13 0x00
+					0x14 0x00  0x15 0xcc  0x16 0x0c  0x19 0x07
+					0x1a 0x07  0x1b 0x00  0x1c 0xee  0x1d 0x2e
+					0x1e 0x26  0x1f 0x0a  0x20 0xd8  0x21 0xdb
+					0x22 0x0a  0x23 0x00  0x24 0x00  0x25 0x00
+					0x26 0x00  0x27 0x19  0x28 0x00  0x29 0x00
+					0x2a 0x00  0x2b 0x00  0x2c 0x00  0x2d 0x01
+					0x2e 0x02  0x2f 0x00  0x30 0x00  0x31 0x04
+					0x32 0x1d  0x33 0x00  0x34 0x00  0x35 0x18
+					0x36 0x00  0x37 0x00  0x38 0x01  0x39 0x00
+					0x3a 0x80  0x3b 0x20  0x3c 0x0f  0x3d 0xe7
+					0x3e 0x02  0x3f 0x12  0x40 0x12  0x41 0x85
+					0x42 0x2f  0x43 0x01  0x44 0x00  0x45 0x00
+					0x46 0x00  0x47 0x00  0x48 0x00  0x49 0x00
+					0x4a 0x00  0x4f 0x80  0x50 0x11  0x51 0x2e
+					0x52 0x1e  0x54 0x20  0x55 0x7f  0x56 0x1f
+					0x57 0x00  0x58 0x00  0x59 0x01  0x5a 0x00
+					0x5b 0x00  0x5c 0x00  0x5d 0x8b  0x60 0x00
+					0x61 0xff  0x62 0x00  0x63 0x00  0x69 0x00
+					0x6a 0x00  0x70 0xe5  0x71 0x1f  0x72 0xff
+					0x73 0xf7  0x74 0xff  0x75 0x0f  0x7d 0x00
+					0x7e 0x1d  0x7f 0x8b  0x80 0xf7  0x81 0xad
+					0x82 0xb1  0x83 0x3f  0x84 0xdf  0x85 0x27
+					0x86 0x51  0x87 0x8a  0x88 0x92  0x89 0x04
+					0x8a 0xd4  0x8b 0x26  0x8c 0x00  0x8d 0x10
+					0x8e 0x1d  0x8f 0x1d  0x90 0x12  0x91 0x01>;
+			};
+
+			lp5562@30 {
+				compatible = "ti,lp5562";
+				reg = <0x30>;
+				clock-mode = /bits/8 <2>;
+
+				chan0 {
+					chan-name = "back";
+					led-cur = /bits/ 8 <0x20>;
+					max-cur = /bits/ 8 <0x60>;
+				};
+
+				chan1 {
+					chan-name = "front_red";
+					led-cur = /bits/ 8 <0x20>;
+					max-cur = /bits/ 8 <0x60>;
+				};
+
+				chan2 {
+					chan-name = "front_blue";
+					led-cur = /bits/ 8 <0x20>;
+					max-cur = /bits/ 8 <0x60>;
+				};
+
+				chan3 {
+					chan-name = "bottom";
+					led-cur = /bits/ 8 <0x20>;
+					max-cur = /bits/ 8 <0x60>;
+				};
+			};
 	        };
 
 		spi0: spi@70002000 {
@@ -160,9 +226,17 @@
 			#address-cells = <1>;
 			#size-cells = <0>;
 			reg = <0x70002000 0x1000>;
-			/* interrupts = <20 0x4>; */
+			interrupts = <20 0x4>;
 			amb,clk-name = "gclk_ssi";
 			amb,clk-freq = <60000000>;
+			cs-gpios = <&gpio 5 0>, <&gpio 6 0>;
+
+			grayscale@1 {
+				compatible = "sitronix,st7571";
+				reg = <1>;
+				spi-max-frequency = <1000000>;
+				sitronix,reset-gpio = <&gpio 13 0>;
+			};
 		};
 
 		spi_slave@7001e000 {
@@ -175,7 +249,7 @@
 		adc@7000d000 {
 			compatible = "ambarella,adc";
 			reg = <0x7000d000 0x1000>;
-			/* interrupts = <34 0x4>; */
+			interrupts = <34 0x4>;
 			clock-frequency = <3000000>;
 		};
 
@@ -377,6 +451,98 @@
 			nand-on-flash-bbt;
 			/* amb,enable-wp; */
 			/* amb,soft-ecc = <1>; */
+
+			partition@0 {
+				reg = <0x0 0x20000>;
+				label = "BST_PTB1";
+			};
+
+			partition@20000 {
+				reg = <0x20000 0x20000>;
+				label = "PTB2";
+			};
+
+			partition@40000 {
+				reg = <0x40000 0x40000>;
+				label = "BLD";
+			};
+
+			partition@80000 {
+				reg = <0x80000 0x3FE0000>;
+				label = "FWUP";
+			};
+
+			partition@4060000 {
+				reg = <0x4060000 0x20000>;
+				label = "DTB1_RTOS";
+			};
+
+			partition@4080000 {
+				reg = <0x4080000 0x03fe0000>;
+				label = "RTOS";
+			};
+
+			partition@8060000 {
+				reg = <0x8060000 0x20000>;
+				label = "DTB2_RTOS";
+			};
+
+			partition@8080000 {
+				reg = <0x8080000 0x02000000>;
+				label = "DSP";
+			};
+
+			partition@a080000 {
+				reg = <0xa080000 0x2000000>;
+				label = "ROMFS";
+			};
+
+			partition@c080000 {
+				reg = <0xc080000 0xFE0000>;
+				label = "Linux";
+			};
+
+			partition@d060000 {
+				reg = <0xd060000 0x20000>;
+				label = "DTB_Linux";
+			};
+
+			partition@d080000 {
+				reg = <0xd080000 0x4000000>;
+				label = "rootfs";
+			};
+
+			partition@11080000 {
+				reg = <0x11080000 0x2000000>;
+				label = "hiber";
+			};
+
+			partition@13080000 {
+				reg = <0x13080000 0xd80000>;
+				label = "vrec_idx";
+			};
+
+			partition@13e00000 {
+				reg = <0x13e00000 0x1180000>;
+				label = "cal";
+				read-only;
+			};
+
+			partition@14f80000 {
+				reg = <0x14f80000 0x280000>;
+				label = "settings";
+			};
+
+			partition@15200000 {
+				reg = <0x15200000 0x580000>;
+				label = "drv_a";
+			};
+
+			partition@15780000 {
+				reg = <0x15780000 0x2180000>;
+				label = "drv_b";
+			};
+
 		};
 
 		spinor0: spinor@6000d000 {
@@ -436,6 +602,7 @@
 				amb,caps-adma;
 				amb,caps-ddr;
 				cap-sdio-irq;
+				no-1-8-v;
 			};
 		};
 
