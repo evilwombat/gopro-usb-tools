@@ -47,10 +47,11 @@ extern struct gp_ddr_cmd hero2_alt_ddr_init_seq[];
 extern struct gp_ddr_cmd hero3black_ddr_init_seq[];
 extern struct gp_ddr_cmd hero3plusblack_ddr_init_seq[];
 extern struct gp_ddr_cmd hero4_ddr_init_seq[];
+extern struct gp_ddr_cmd hero5_ddr_init_seq[];
 
 /*
  * int gp_init_interface(libusb_device_handle *dev)
- * 
+ *
  * 	Initialize camera USB device after it's been found using
  * 	libusb_open_device_with_vid_pid.
  *
