@@ -670,6 +670,7 @@ int get_camera_option(int argc, char ** argv)
 int main(int argc, char **argv)
 {
 	int ret, i, cam_type;
+	unsigned int ddr_base = 0xc0000000;
 	libusb_device_handle *usb_dev;
 	printf("\nevilwombat's gopro boot thingy v0.12\n\n");
 	printf("MAKE SURE YOU HAVE READ THE INSTRUCTIONS!\n");
@@ -736,6 +737,7 @@ int main(int argc, char **argv)
 	}
 
 	ret = gp_test_ddr(usb_dev);
+	ret = gp_test_ddr(usb_dev, ddr_base);
 	if (ret) {
 		printf("DDR test failed: %d\n", ret);
 		return -1;

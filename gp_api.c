@@ -187,7 +187,7 @@ int gp_init_ddr(libusb_device_handle *dev, struct gp_ddr_cmd *seq)
 	return 0;
 }
 
-int gp_test_ddr(libusb_device_handle *dev)
+int gp_test_ddr(libusb_device_handle *dev, unsigned int ddr_base)
 {
 	uint32_t tmp, addr, expect, magic1 = 3126727440U, magic2 = 13834356;
 	int ret, test_count = 1000;
@@ -196,7 +196,7 @@ int gp_test_ddr(libusb_device_handle *dev)
 	printf("Testing DDR...");
 
 	for (i = 0; i < test_count; i++) {
-		addr = 0xc0000000 + i * 4;
+		addr = ddr_base + i * 4;
 		expect = ((i * magic2) ^ magic1) * i;
 		ret = gp_write_reg(dev, addr, expect);
 		if (ret) {
@@ -211,7 +211,7 @@ int gp_test_ddr(libusb_device_handle *dev)
 	}
 
 	for (i = 0; i < test_count; i++) {
-		addr = 0xc0000000 + i * 4;
+		addr = ddr_base + i * 4;
 		expect = ((i * magic2) ^ magic1) * i;
 		tmp = gp_read_reg(dev, addr);
 

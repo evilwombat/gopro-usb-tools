@@ -106,9 +106,9 @@ int gp_init_ddr(libusb_device_handle *dev, struct gp_ddr_cmd *seq);
  *
  *	Perform a very basic test of the memory controller.
  *
- *	Returns 0 if test passes or non-zero if it fails 
- */ 
-int gp_test_ddr(libusb_device_handle *dev);
+ *	Returns 0 if test passes or non-zero if it fails
+ */
+int gp_test_ddr(libusb_device_handle *dev, unsigned int ddr_base);
 
 /*
  * int gp_write_byte(libusb_device_handle *dev, uint32_t addr, unsigned char val)
